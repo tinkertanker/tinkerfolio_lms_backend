@@ -3,9 +3,16 @@ from accounts.models import User
 
 # Create your models here.
 class Classroom(models.Model):
+    STATUS_TYPES = (
+        (1, 'Active'),
+        (2, 'Archived')
+    )
+
     teacher = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=6)
+    student_indexes = models.JSONField(default=list())
+    status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
 
 class Task(models.Model):
     STATUS_TYPES = (
@@ -17,13 +24,14 @@ class Task(models.Model):
 
     name = models.CharField(max_length=200)
     description = models.TextField()
-    status_type = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
+    status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
     max_starts = models.IntegerField()
 
 class Submission(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    ## Image Name Format: (Classroom Code)_(Task ID)_(Submission ID).(format)
     image = models.ImageField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
 

@@ -8,3 +8,8 @@ class User(AbstractUser):
     )
 
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPES, default=2)
+
+class StudentProfile(models.Model):
+    student = models.OneToOneField(User, on_delete=models.CASCADE)
+    assigned_class_code = models.CharField(max_length=6)
+    index = models.IntegerField()
