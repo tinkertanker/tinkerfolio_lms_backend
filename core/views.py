@@ -2,14 +2,20 @@ import uuid
 from rest_framework import viewsets
 from core.models import Classroom
 from accounts.models import User, StudentProfile
-from core.serializers import ClassroomSerializer
+from core.serializers import ClassroomSerializer, StudentProfileSerializer
 from rest_framework.response import Response
 
 class ClassroomViewSet(viewsets.ViewSet):
+
     def list(self, request):
         queryset = Classroom.objects.filter(teacher=request.user)
         classrooms = ClassroomSerializer(queryset, many=True)
         return Response(classrooms.data)
+
+    def retrieve(self, request, **kwargs):
+        ## Uses class code instead of pk
+        classroom = Classroom.objects.get(code=kwargs['pk'])
+        return Response(ClassroomSerializer(classroom).data)
 
     def create(self, request):
         code = uuid.uuid4().hex[:6]
@@ -32,7 +38,7 @@ class ClassroomViewSet(viewsets.ViewSet):
 
         return Response(ClassroomSerializer(classroom).data)
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request, **kwargs):
         classroom = Classroom.objects.get(pk=int(kwargs['pk']))
 
         classroom.name = request.data['name']
@@ -56,3 +62,15 @@ class ClassroomViewSet(viewsets.ViewSet):
         classroom.save()
 
         return Response(ClassroomSerializer(classroom).data)
+
+class StudentProfileViewSet(viewsets.ViewSet):
+    def list(self, request):
+        queryset = StudentProfile.objects.filter(assigned_class_code=request.query_params['code'])
+        profile = StudentProfileSerializer(queryset, many=True)
+        return Response(profile.data)
+
+    def update(self, request, **kwargs):
+        profile = StudentProfile.objects.get(assigned_class_code=request.data['code'], index=request.data['index'])
+        profile.name = request.data['name']
+        profile.save()
+        return Response('done')

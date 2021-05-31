@@ -13,3 +13,4 @@ class StudentProfile(models.Model):
     student = models.OneToOneField(User, on_delete=models.CASCADE)
     assigned_class_code = models.CharField(max_length=6)
     index = models.IntegerField()
+    name = models.CharField(max_length=200, default="")
