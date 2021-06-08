@@ -14,6 +14,8 @@ class Classroom(models.Model):
     student_indexes = models.JSONField(default=list())
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+
 class Task(models.Model):
     STATUS_TYPES = (
         (1, 'In Progress'),
@@ -25,7 +27,10 @@ class Task(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField()
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
-    max_starts = models.IntegerField()
+    max_stars = models.IntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class Submission(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
@@ -37,3 +42,5 @@ class Submission(models.Model):
 
     stars = models.IntegerField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)

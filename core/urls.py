@@ -6,6 +6,7 @@ from core.views import *
 router = DefaultRouter()
 router.register(r'classrooms', ClassroomViewSet, basename="classroom")
 router.register(r'student_profiles', StudentProfileViewSet, basename="student_profile")
+router.register(r'tasks', TaskViewSet, basename="task")
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
