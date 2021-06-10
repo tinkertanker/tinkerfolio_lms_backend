@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'accounts',
+    'student_core',
     'core',
     'channels',
     'rest_framework',

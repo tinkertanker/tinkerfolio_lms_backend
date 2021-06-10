@@ -33,7 +33,7 @@ class ClassroomViewSet(viewsets.ViewSet):
 
         for i in range(request.data['no_of_students']):
             ## Create User and StudentProfile for each student
-            student = User(username=code+'_'+str(i+1))
+            student = User(username=code+'_'+str(i+1), user_type=1)
             student.set_password(str(i+1))
             student.save()
 
@@ -56,7 +56,7 @@ class ClassroomViewSet(viewsets.ViewSet):
 
         indexes_to_add = list(set(request.data['student_indexes']) - set(classroom.student_indexes))
         for index in indexes_to_add:
-            student = User(username=classroom.code+'_'+str(index))
+            student = User(username=classroom.code+'_'+str(index), user_type=1)
             student.set_password(str(index))
             student.save()
 
