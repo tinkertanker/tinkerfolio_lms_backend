@@ -8,8 +8,6 @@ from accounts.models import User
 from core.models import Task, Submission
 from core.serializers import TaskSerializer, SubmissionSerializer
 
-## minor change
-
 ## Send new tasks or updated tasks to classroom
 @receiver(post_save, sender=Task)
 def send_task(sender, instance, **kwargs):
