@@ -93,7 +93,6 @@ class TaskViewSet(viewsets.ViewSet):
         return Response(TaskSerializer(queryset, many=True).data)
 
     def create(self, request):
-        print(request.data)
         verify_classroom_owner(request.data['code'], request.user)
 
         task = Task(

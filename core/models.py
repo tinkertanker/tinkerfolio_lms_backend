@@ -36,7 +36,7 @@ class Submission(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    ## Image Name Format: (Classroom Code)_(Task ID)_(Submission ID).(format)
+    ## Image Name Format: (Classroom Code)_(Task ID)_(Student ID).(format)
     image = models.ImageField(blank=True, null=True)
     text = models.TextField(blank=True, null=True)
 

@@ -34,11 +34,11 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'accounts',
-    'student_core',
-    'core',
     'channels',
     'rest_framework',
+    'accounts',
+    'student_core.apps.StudentCoreConfig',
+    'core',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
