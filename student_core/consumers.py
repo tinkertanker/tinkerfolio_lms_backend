@@ -3,8 +3,6 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
-## test
-
 class StudentConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
@@ -31,14 +29,6 @@ class StudentConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         pass
-
-    async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
 
     async def send_task(self, event):
         task = event['task']

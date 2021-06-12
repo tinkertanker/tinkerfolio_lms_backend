@@ -1,10 +1,11 @@
 import uuid
+from itertools import chain
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from core.models import Classroom, Task
+from core.models import Classroom, Task, Submission
 from accounts.models import User, StudentProfile
-from core.serializers import ClassroomSerializer, StudentProfileSerializer, TaskSerializer
+from core.serializers import ClassroomSerializer, StudentProfileSerializer, TaskSerializer, SubmissionSerializer
 
 from core.utils import verify_classroom_owner
 
@@ -70,11 +71,16 @@ class ClassroomViewSet(viewsets.ViewSet):
 
 class StudentProfileViewSet(viewsets.ViewSet):
     def list(self, request):
+        ## student ID is from User instance, not StudentProfile instance
         verify_classroom_owner(request.query_params['code'], request.user)
 
         queryset = StudentProfile.objects.filter(assigned_class_code=request.query_params['code'])
-        profile = StudentProfileSerializer(queryset, many=True)
-        return Response(profile.data)
+        profiles = []
+        for sp in queryset:
+            profile = StudentProfileSerializer(sp).data
+            profile['id'] = sp.student.id
+            profiles.append(profile)
+        return Response(profiles)
 
     def update(self, request, **kwargs):
         verify_classroom_owner(request.data['code'], request.user)
@@ -126,3 +132,23 @@ class TaskViewSet(viewsets.ViewSet):
         task.delete()
 
         return Response("task deleted")
+
+class SubmissionViewSet(viewsets.ViewSet):
+    def list(self, request):
+        ## All submissions from classroom
+        tasks = Classroom.objects.get(code=request.query_params['code']).task_set.all()
+        subs_by_task = [task.submission_set.all() for task in tasks if task.submission_set.all()]
+        subs = [item for sublist in subs_by_task for item in sublist]
+
+        return Response(SubmissionSerializer(subs, many=True).data)
+
+    def update(self, request, **kwargs):
+        sub = Submission.objects.get(pk=int(kwargs['pk']))
+
+        verify_classroom_owner(sub.task.classroom.code, request.user)
+
+        sub.stars = request.data['stars']
+        sub.comments = request.data['comment']
+        sub.save()
+
+        return Response(SubmissionSerializer(sub).data)

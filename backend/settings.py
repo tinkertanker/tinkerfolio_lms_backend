@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'student_core.apps.StudentCoreConfig',
-    'core',
+    'core.apps.CoreConfig',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
