@@ -8,6 +8,10 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 """
 
 import os
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+django_asgi_app = get_asgi_application()
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
@@ -16,8 +20,6 @@ from django.core.asgi import get_asgi_application
 from .channelsmiddleware import TokenAuthMiddleware
 import core.routing
 import student_core.routing
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
