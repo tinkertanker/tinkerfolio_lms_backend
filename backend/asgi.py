@@ -22,7 +22,7 @@ import core.routing
 import student_core.routing
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
+    "http": django_asgi_app,
     "websocket": TokenAuthMiddleware(
         URLRouter(
             core.routing.websocket_urlpatterns +
