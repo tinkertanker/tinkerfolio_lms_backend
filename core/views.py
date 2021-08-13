@@ -50,18 +50,29 @@ class ClassroomViewSet(viewsets.ViewSet):
         classroom.name = request.data['name']
         classroom.status = request.data['status']
 
+        print(request.data)
+
         indexes_to_remove = list(set(classroom.student_indexes) - set(request.data['student_indexes']))
         for index in indexes_to_remove:
             sp = StudentProfile.objects.get(assigned_class_code=classroom.code, index=index)
             sp.student.delete()
 
         indexes_to_add = list(set(request.data['student_indexes']) - set(classroom.student_indexes))
+        print('indexes to add:', indexes_to_add)
         for index in indexes_to_add:
             student = User(username=classroom.code+'_'+str(index), user_type=1)
             student.set_password(str(index))
             student.save()
 
-            student_profile = StudentProfile(student=student, assigned_class_code=classroom.code, index=index)
+            try:
+                student_name = [newName['name'] for newName in request.data['newNames'] if newName['index'] == index][0]
+            except:
+                student_name = ""
+
+            student_profile = StudentProfile(
+                student=student, assigned_class_code=classroom.code, index=index,
+                name=student_name
+            )
             student_profile.save()
 
         classroom.student_indexes = request.data['student_indexes']

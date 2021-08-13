@@ -38,9 +38,11 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         if request.user.user_type != 1:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
-        print(request.data)
-
         sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=request.user)
+
+        if 'text' in request.data:
+            sub.text = request.data['text']
+
         if 'image' in request.data:
             image = request.data['image']
             filename = '{}_{}_{}.{}'.format(
@@ -48,9 +50,6 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
                 request.user.id, image.name.split('.')[1]
             )
             sub.image.save(filename, ContentFile(image.read()))
-
-        if 'text' in request.data:
-            sub.text = request.data['text']
 
         sub.save()
 
