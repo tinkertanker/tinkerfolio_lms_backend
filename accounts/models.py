@@ -14,3 +14,4 @@ class StudentProfile(models.Model):
     assigned_class_code = models.CharField(max_length=6)
     index = models.IntegerField()
     name = models.CharField(max_length=200, default="")
+    score = models.IntegerField(default=0)

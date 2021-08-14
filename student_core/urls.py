@@ -9,5 +9,6 @@ router.register(r'submission', StudentSubmissionViewSet, basename="student_submi
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
-    path('', include(router.urls)),
+    path('leaderboard', Leaderboard, name="leaderboard"),
+    path('', include(router.urls))
 ]

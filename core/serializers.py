@@ -11,7 +11,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
 class StudentProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentProfile
-        fields = ['index', 'name']
+        fields = ['index', 'name', 'score']
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:

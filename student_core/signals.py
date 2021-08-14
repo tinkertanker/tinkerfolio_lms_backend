@@ -20,6 +20,12 @@ def send_task(sender, instance, **kwargs):
 def send_submission(sender, instance, created, **kwargs):
     ## If submission is updated, it means a teacher commented
     if not created:
+        ## Update score
+        sp = instance.student.studentprofile
+        sp.score += instance.stars
+        sp.save()
+
+        ## Send comments to student
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             'student_{}'.format(instance.student.id),

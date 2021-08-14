@@ -1,4 +1,5 @@
 import uuid
+from rest_framework.decorators import api_view
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -54,3 +55,9 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         sub.save()
 
         return Response(SubmissionSerializer(sub).data)
+
+@api_view(['GET'])
+def Leaderboard(request):
+    profile_instances = StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)
+    profiles = StudentProfileSerializer(profile_instances, many=True).data
+    return Response(profiles)
