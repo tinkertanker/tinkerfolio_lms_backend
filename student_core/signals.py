@@ -21,9 +21,10 @@ def send_submission(sender, instance, created, **kwargs):
     ## If submission is updated, it means a teacher commented
     if not created:
         ## Update score
-        sp = instance.student.studentprofile
-        sp.score += instance.stars
-        sp.save()
+        if instance.stars:
+            sp = instance.student.studentprofile
+            sp.score += instance.stars
+            sp.save()
 
         ## Send comments to student
         channel_layer = get_channel_layer()
