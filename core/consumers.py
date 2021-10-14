@@ -31,6 +31,7 @@ class TeacherConsumer(AsyncWebsocketConsumer):
         pass
 
     async def receive(self, text_data):
+        # payload received from instructor
         text_data_json = json.loads(text_data)
         msg_type = list(text_data_json.keys())[0]
 
@@ -44,6 +45,12 @@ class TeacherConsumer(AsyncWebsocketConsumer):
         submission = event['submission']
         await self.send(text_data=json.dumps({
             'submission': submission
+        }))
+
+    async def send_submission_status(self, event):
+        submission_status = event['submission_status']
+        await self.send(text_data=json.dumps({
+            'submission_status': submission_status
         }))
 
     @database_sync_to_async

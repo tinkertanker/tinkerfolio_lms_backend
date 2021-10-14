@@ -18,13 +18,13 @@ def send_task(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Submission)
 def send_submission(sender, instance, created, **kwargs):
-    ## If submission is updated, it means a teacher commented
-    if not created:
+    ## If teacher comments
+
+    if instance.stars:
         ## Update score
-        if instance.stars:
-            sp = instance.student.studentprofile
-            sp.score += instance.stars
-            sp.save()
+        sp = instance.student.studentprofile
+        sp.score += instance.stars
+        sp.save()
 
         ## Send comments to student
         channel_layer = get_channel_layer()

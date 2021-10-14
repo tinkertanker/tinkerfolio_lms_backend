@@ -4,13 +4,12 @@ from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from core.models import Submission
-from core.serializers import SubmissionSerializer
+from core.models import Submission, SubmissionStatus
+from core.serializers import SubmissionSerializer, SubmissionStatusSerializer
 
 @receiver(post_save, sender=Submission)
 def send_submission(sender, instance, created, **kwargs):
     ## New submissions by students will be sent to teacher
-    print(instance)
     if created:
         print('is created')
         channel_layer = get_channel_layer()
@@ -18,3 +17,12 @@ def send_submission(sender, instance, created, **kwargs):
             'teacher_{}'.format(instance.task.classroom.code),
             {"type": "send_submission", "submission": SubmissionSerializer(instance).data},
         )
+
+@receiver(post_save, sender=SubmissionStatus)
+def send_submission_status(sender, instance, created, **kwargs):
+    ## changes to submission status will be pushed to teacher
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'teacher_{}'.format(instance.task.classroom.code),
+        {"type": "send_submission_status", "submission_status": SubmissionStatusSerializer(instance).data},
+    )

@@ -32,6 +32,19 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+class SubmissionStatus(models.Model):
+    ## completion status of student's task
+    STATUS_TYPES = (
+        (0, 'Not started'),
+        (1, 'Working on it'),
+        (2, 'Stuck')
+    )
+
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=0)
+
 class Submission(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)

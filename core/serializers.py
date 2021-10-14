@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import Classroom, Task, Submission
+from core.models import Classroom, Task, Submission, SubmissionStatus
 from accounts.models import StudentProfile
 
 class ClassroomSerializer(serializers.ModelSerializer):
@@ -16,6 +16,11 @@ class StudentProfileSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
+        fields = '__all__'
+
+class SubmissionStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionStatus
         fields = '__all__'
 
 class SubmissionSerializer(serializers.ModelSerializer):

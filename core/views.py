@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from core.models import Classroom, Task, Submission
 from accounts.models import User, StudentProfile
-from core.serializers import ClassroomSerializer, StudentProfileSerializer, TaskSerializer, SubmissionSerializer
+from core.serializers import *
 
 from core.utils import verify_classroom_owner
 
@@ -163,3 +163,12 @@ class SubmissionViewSet(viewsets.ViewSet):
         sub.save()
 
         return Response(SubmissionSerializer(sub).data)
+
+class SubmissionStatusViewSet(viewsets.ViewSet):
+    def list(self, request):
+        ## All submission statuses from classroom
+        tasks = Classroom.objects.get(code=request.query_params['code']).task_set.all()
+        statuses_by_task = [task.submissionstatus_set.all() for task in tasks if task.submissionstatus_set.all()]
+        statuses = [item for statuslist in statuses_by_task for item in statuslist]
+
+        return Response(SubmissionStatusSerializer(statuses, many=True).data)
