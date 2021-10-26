@@ -158,9 +158,10 @@ class SubmissionViewSet(viewsets.ViewSet):
 
         verify_classroom_owner(sub.task.classroom.code, request.user)
 
-        sub.stars = request.data['stars']
-        sub.comments = request.data['comment']
-        sub.save()
+        if sub.stars != request.data['stars']: ## in case review accidentally submitted twice
+            sub.stars = request.data['stars']
+            sub.comments = request.data['comment']
+            sub.save()
 
         return Response(SubmissionSerializer(sub).data)
 
