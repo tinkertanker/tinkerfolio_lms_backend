@@ -20,7 +20,7 @@ def send_task(sender, instance, **kwargs):
 def send_submission(sender, instance, created, **kwargs):
     ## If teacher comments
 
-    if instance.stars:
+    if instance.stars is not None:
         ## Update score
         sp = instance.student.studentprofile
         sp.score += instance.stars
