@@ -11,7 +11,7 @@ class Classroom(models.Model):
     teacher = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=6)
-    student_indexes = models.JSONField(default=list())
+    student_indexes = models.JSONField(default=list)
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
 
     created_at = models.DateTimeField(auto_now_add=True)

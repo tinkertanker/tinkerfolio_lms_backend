@@ -15,3 +15,4 @@ class StudentProfile(models.Model):
     index = models.IntegerField()
     name = models.CharField(max_length=200, default="")
     score = models.IntegerField(default=0)
+    created_by_student = models.BooleanField(default=False)

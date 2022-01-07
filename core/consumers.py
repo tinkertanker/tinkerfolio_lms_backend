@@ -53,6 +53,12 @@ class TeacherConsumer(AsyncWebsocketConsumer):
             'submission_status': submission_status
         }))
 
+    async def send_student_profile(self, event):
+        student_profile = event['student_profile']
+        await self.send(text_data=json.dumps({
+            'student_profile': student_profile
+        }))
+
     @database_sync_to_async
     def classroom_belongs_to_user(self):
         classroom = Classroom.objects.get(code=self.code)
