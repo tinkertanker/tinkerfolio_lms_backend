@@ -1,0 +1,60 @@
+version: "3.7"
+
+services:
+    django:
+        build: .
+        container_name: django
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - .:/django
+        ports:
+            - "8000:8000"
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+            - CELERY_BROKER=redis://redis:6379/0
+            - CELERY_BACKEND=redis://redis:6379/0
+        depends_on:
+            - pgdb
+            - redis
+    pgdb:
+        image: postgres
+        container_name: echoclass_pgdb
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_DB=echoclass
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+    redis:
+        image: "redis:alpine"
+        container_name: echoclass_redis
+
+# services:
+#   redis:
+#     image: redis:alpine
+#     container_name: redis
+#   db:
+#     image: postgres
+#     volumes:
+#       - ./data/db:/var/lib/postgresql/data
+#     environment:
+#       - POSTGRES_NAME=postgres
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=postgres
+#     container_name: echoclass_postgres_db
+#   web:
+#     build: .
+#     image: app:django
+#     container_name: django_app
+#     command: python manage.py runserver 0.0.0.0:8000
+#     volumes:
+#       - .:/django
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - POSTGRES_NAME=postgres
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=postgres
+#     depends_on:
+#       - db
