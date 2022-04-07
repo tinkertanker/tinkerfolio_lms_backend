@@ -57,3 +57,32 @@ class Submission(models.Model):
     comments = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    resubmitted_at = models.DateTimeField(blank=True, null=True)
+
+class Announcement(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+
+class ResourceSection(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=200)
+
+class Resource(models.Model):
+    section = models.ForeignKey(ResourceSection, on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    name = models.CharField(max_length=200)
+    ## only either file or link field should be populated
+    file = models.FileField(blank=True, null=True, default=None)
+    link = models.TextField(default=None)

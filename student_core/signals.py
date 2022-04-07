@@ -7,9 +7,9 @@ from asgiref.sync import async_to_sync
 from core.models import Task, Submission
 from core.serializers import TaskSerializer, SubmissionSerializer
 
-## Send new tasks or updated tasks to classroom
 @receiver(post_save, sender=Task)
 def send_task(sender, instance, **kwargs):
+    # New tasks or task updates will be sent to students
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         'student_{}'.format(instance.classroom.code),
@@ -18,7 +18,7 @@ def send_task(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Submission)
 def send_submission(sender, instance, created, **kwargs):
-    ## If teacher comments
+    ## If teacher comments, sent them to student
 
     if instance.stars is not None:
         ## Update score

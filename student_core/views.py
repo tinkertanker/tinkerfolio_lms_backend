@@ -10,6 +10,8 @@ from core.models import Classroom, Task
 from accounts.models import User, StudentProfile
 from core.serializers import *
 
+from datetime import datetime
+
 class StudentInitialViewSet(viewsets.ViewSet):
     def list(self, request):
         ## Get student's initial tasks and submissions
@@ -58,6 +60,32 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         sub.save()
 
         return Response(SubmissionSerializer(sub).data)
+
+    def update(self, request, **kwargs):
+        if request.user.user_type != 1:
+            return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
+
+        sub = Submission.objects.get(id=int(kwargs['pk']))
+
+        if sub.stars or sub.comments:
+            return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
+
+        if 'text' in request.data:
+            sub.text = request.data['text']
+
+        if 'image' in request.data:
+            image = request.data['image']
+            filename = '{}_{}_{}.{}'.format(
+                request.user.studentprofile.assigned_class_code, request.data['task_id'],
+                request.user.id, image.name.split('.')[1]
+            )
+            sub.image.save(filename, ContentFile(image.read()))
+
+        sub.resubmitted_at = datetime.now()
+        sub.save()
+
+        return Response(SubmissionSerializer(sub).data)
+
 
 class MyUserPermissions(permissions.BasePermission):
 

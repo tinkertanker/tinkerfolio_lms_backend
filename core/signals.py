@@ -10,8 +10,8 @@ from core.serializers import SubmissionSerializer, SubmissionStatusSerializer, S
 
 @receiver(post_save, sender=Submission)
 def send_submission(sender, instance, created, **kwargs):
-    ## New submissions by students will be sent to teacher
-    if created:
+    ## New submissions and resubmissions by students will be sent to teacher
+    if created or (instance.resubmitted_at and not instance.stars and not instance.comments):
         print('is created')
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
@@ -30,7 +30,7 @@ def send_submission_status(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=StudentProfile)
 def send_student_profile(sender, instance, created, **kwargs):
-    ## When a student signs up
+    ## When a student signs up, their profile will be sent to the teacher.
     if created:
         if instance.created_by_student:
             profile = StudentProfileSerializer(instance).data

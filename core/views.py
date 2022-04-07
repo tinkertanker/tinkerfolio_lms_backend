@@ -3,7 +3,7 @@ from itertools import chain
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from core.models import Classroom, Task, Submission
+from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource
 from accounts.models import User, StudentProfile
 from core.serializers import *
 
@@ -79,6 +79,14 @@ class ClassroomViewSet(viewsets.ViewSet):
         classroom.save()
 
         return Response(ClassroomSerializer(classroom).data)
+
+    def delete(self, request, **kwargs):
+        classroom = Classroom.objects.get(pk=int(kwargs['pk']))
+        verify_classroom_owner(classroom.code, request.user)
+
+        classroom.delete()
+
+        return Response("classroom deleted")
 
 class StudentProfileViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -173,3 +181,42 @@ class SubmissionStatusViewSet(viewsets.ViewSet):
         statuses = [item for statuslist in statuses_by_task for item in statuslist]
 
         return Response(SubmissionStatusSerializer(statuses, many=True).data)
+
+class AnnouncementViewSet(viewsets.ViewSet):
+    def list(self, request):
+        classroom = Classroom.objects.get(code=request.query_params['code'])
+        announcements = Announcement.objects.filter(classroom=classroom)
+
+        return Response(AnnouncementSerializer(announcements, many=True).data)
+
+    def create(self, request):
+        verify_classroom_owner(request.data['code'], request.user)
+
+        announcement = Announcement(
+            classroom=Classroom.objects.get(code=request.data['code']),
+            name=request.data['name'],
+            description=request.data['description'],
+        )
+        announcement.save()
+
+        return Response(AnnouncementSerializer(announcement).data)
+
+    def update(self, request, **kwargs):
+        announcement = Announcement.objects.get(pk=int(kwargs['pk']))
+
+        verify_classroom_owner(announcement.classroom.code, request.user)
+
+        announcement.name = request.data['name']
+        announcement.description = request.data['description']
+        announcement.save()
+
+        return Response(AnnouncementSerializer(announcement).data)
+
+    def delete(self, request, **kwargs):
+        announcement = Announcement.objects.get(pk=int(kwargs['pk']))
+
+        verify_classroom_owner(announcement.classroom.code, request.user)
+
+        announcement.delete()
+
+        return Response("announcement deleted")

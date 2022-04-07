@@ -9,6 +9,7 @@ router.register(r'student_profiles', StudentProfileViewSet, basename="student_pr
 router.register(r'tasks', TaskViewSet, basename="task")
 router.register(r'submissions', SubmissionViewSet, basename="submission")
 router.register(r'submission_status', SubmissionStatusViewSet, basename="submission_status")
+router.register(r'announcements', AnnouncementViewSet, basename="announcement")
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
