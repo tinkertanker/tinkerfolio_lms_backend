@@ -83,6 +83,5 @@ class Resource(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     name = models.CharField(max_length=200)
-    ## only either file or link field should be populated
+    ## File Name Format: (Resource Section ID)_(Resource ID)_(Resource Name).(format)
     file = models.FileField(blank=True, null=True, default=None)
-    link = models.TextField(default=None)

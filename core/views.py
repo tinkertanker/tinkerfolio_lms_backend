@@ -2,6 +2,7 @@ import uuid
 from itertools import chain
 from rest_framework import viewsets
 from rest_framework.response import Response
+from django.core.files.base import ContentFile
 
 from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource
 from accounts.models import User, StudentProfile
@@ -220,3 +221,79 @@ class AnnouncementViewSet(viewsets.ViewSet):
         announcement.delete()
 
         return Response("announcement deleted")
+
+class ResourceSectionViewSet(viewsets.ViewSet):
+    # def __init__(self, *args, **kwargs):
+    #     file_fields = kwargs.pop('file_fields', None)
+    #     super().__init__(*args, **kwargs)
+    #     if file_fields:
+    #         field_update_dict = {field: serializers.FileField(required=False, write_only=True) for field in file_fields}
+    #         self.fields.update(**field_update_dict)
+
+    def list(self, request):
+        classroom = Classroom.objects.get(code=request.query_params['code'])
+        sections = ResourceSection.objects.filter(classroom=classroom)
+        resources = [{
+            "section": ResourceSectionSerializer(section).data,
+            "resources": ResourceSerializer(section.resource_set, many=True).data
+        } for section in sections]
+
+        return Response(resources)
+
+    def create(self, request):
+        classroom = Classroom.objects.get(code=request.data['code'])
+        section = ResourceSection(classroom=classroom, name=request.data['name'])
+        section.save()
+
+        res_list = []
+        for key, file in request.data.items():
+            if 'file' in key:
+                res = Resource(section=section, name=file.name)
+                res.save()
+
+                filename = 'res_{}_{}_{}'.format(
+                    section.id, res.id, file.name
+                )
+                res.file.save(filename, ContentFile(file.read()))
+
+                res_list.append(res)
+
+        return Response({
+            "section": ResourceSectionSerializer(section).data,
+            "resources": ResourceSerializer(res_list, many=True).data
+        })
+
+    def destroy(self, request, **kwargs):
+        rs = ResourceSection.objects.get(pk=int(kwargs['pk']))
+
+        verify_classroom_owner(rs.classroom.code, request.user)
+
+        rs.delete()
+
+        return Response(True)
+
+class ResourceViewSet(viewsets.ViewSet):
+    def create(self, request):
+        section = ResourceSection.objects.get(id=request.data['resource_section_id'])
+
+        verify_classroom_owner(section.classroom.code, request.user)
+
+        new_file = request.data['file']
+        res = Resource(section=section, name=new_file.name)
+        res.save()
+
+        filename = 'res_{}_{}_{}'.format(
+            section.id, res.id, new_file.name
+        )
+        res.file.save(filename, ContentFile(new_file.read()))
+
+        return Response(ResourceSerializer(res).data)
+
+    def destroy(self, request, **kwargs):
+        res = Resource.objects.get(pk=int(kwargs['pk']))
+
+        verify_classroom_owner(res.section.classroom.code, request.user)
+
+        res.delete()
+
+        return Response(True)

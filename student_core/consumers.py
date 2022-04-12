@@ -41,3 +41,9 @@ class StudentConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'submission': submission
         }))
+
+    async def send_announcement(self, event):
+        announcement = event['announcement']
+        await self.send(text_data=json.dumps({
+            'announcement': announcement
+        }))

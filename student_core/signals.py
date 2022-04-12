@@ -4,8 +4,8 @@ from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from core.models import Task, Submission
-from core.serializers import TaskSerializer, SubmissionSerializer
+from core.models import Task, Submission, Announcement
+from core.serializers import TaskSerializer, SubmissionSerializer, AnnouncementSerializer
 
 @receiver(post_save, sender=Task)
 def send_task(sender, instance, **kwargs):
@@ -32,3 +32,13 @@ def send_submission(sender, instance, created, **kwargs):
             'student_{}'.format(instance.student.id),
             {"type": "send_submission", "submission": SubmissionSerializer(instance).data},
         )
+
+@receiver(post_save, sender=Announcement)
+def send_announcement(sender, instance, created, **kwargs):
+    ## Send new announcements and updates to students
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'student_{}'.format(instance.classroom.code),
+        {"type": "send_announcement", "announcement": AnnouncementSerializer(instance).data},
+    )

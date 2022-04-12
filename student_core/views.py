@@ -20,6 +20,14 @@ class StudentInitialViewSet(viewsets.ViewSet):
 
         profile = StudentProfile.objects.get(student=request.user)
         classroom = Classroom.objects.get(code=profile.assigned_class_code)
+        announcements_queryset = classroom.announcement_set.all()
+
+        sections = ResourceSection.objects.filter(classroom=classroom)
+        resources = [{
+            "section": ResourceSectionSerializer(section).data,
+            "resources": ResourceSerializer(section.resource_set, many=True).data
+        } for section in sections]
+
         task_queryset = classroom.task_set.all()
         submission_statuses_queryset = [task.submissionstatus_set.filter(student=request.user).first() for task in task_queryset]
         submissions_queryset = [task.submission_set.filter(student=request.user).first() for task in task_queryset]
@@ -27,6 +35,10 @@ class StudentInitialViewSet(viewsets.ViewSet):
         return Response({
             'profile': StudentProfileSerializer(profile).data,
             'classroom': ClassroomSerializer(classroom).data,
+
+            'announcements': AnnouncementSerializer(announcements_queryset, many=True).data,
+            'resources': resources,
+
             'tasks': TaskSerializer(task_queryset, many=True).data,
             'submission_statuses': [SubmissionStatusSerializer(substatus).data for substatus in submission_statuses_queryset if substatus != None],
             'submissions': [SubmissionSerializer(sub).data for sub in submissions_queryset if sub != None]
