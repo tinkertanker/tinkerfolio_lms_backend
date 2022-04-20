@@ -135,6 +135,13 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(status).data)
 
+class StudentResourceViewSet(viewsets.ViewSet):
+    def retrieve(self, request, **kwargs):
+        resource = Resource.objects.get(id=kwargs['pk'])
+        if request.user.studentprofile.assigned_class_code != resource.section.classroom.code:
+            return Response('Student not part of this classroom.', status.HTTP_403_FORBIDDEN)
+        return Response(ResourceSerializer(resource).data)
+
 @api_view(['GET'])
 def Leaderboard(request):
     profile_instances = StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)

@@ -273,6 +273,11 @@ class ResourceSectionViewSet(viewsets.ViewSet):
         return Response(True)
 
 class ResourceViewSet(viewsets.ViewSet):
+    def retrieve(self, request, **kwargs):
+        resource = Resource.objects.get(id=kwargs['pk'])
+        verify_classroom_owner(resource.section.classroom.code, request.user)
+        return Response(ResourceSerializer(resource).data)
+
     def create(self, request):
         section = ResourceSection.objects.get(id=request.data['resource_section_id'])
 
