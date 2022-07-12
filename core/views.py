@@ -125,7 +125,8 @@ class TaskViewSet(viewsets.ViewSet):
             classroom=Classroom.objects.get(code=request.data['code']),
             name=request.data['name'],
             description=request.data['description'],
-            max_stars=request.data['max_stars']
+            max_stars=request.data['max_stars'],
+            display=request.data['display']
         )
         task.save()
 
@@ -139,6 +140,7 @@ class TaskViewSet(viewsets.ViewSet):
         task.name = request.data['name']
         task.description = request.data['description']
         task.status = request.data['status']
+        task.display = request.data['display']
         task.max_stars = request.data['max_stars']
         task.save()
 

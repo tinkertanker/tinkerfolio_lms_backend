@@ -21,12 +21,17 @@ class Task(models.Model):
         (1, 'In Progress'),
         (2, 'Completed')
     )
+    DISPLAY_TYPES = (
+        (1, 'Published'),
+        (2, 'Draft')
+    )
 
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
 
     name = models.CharField(max_length=200)
     description = models.TextField()
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
+    display = models.PositiveSmallIntegerField(choices=DISPLAY_TYPES, default=1)
     max_stars = models.IntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)

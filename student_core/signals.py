@@ -10,11 +10,13 @@ from core.serializers import TaskSerializer, SubmissionSerializer, AnnouncementS
 @receiver(post_save, sender=Task)
 def send_task(sender, instance, **kwargs):
     # New tasks or task updates will be sent to students
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        'student_{}'.format(instance.classroom.code),
-        {"type": "send_task", "task": TaskSerializer(instance).data},
-    )
+
+    if instance.display == 1: # draft tasks will not be sent
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            'student_{}'.format(instance.classroom.code),
+            {"type": "send_task", "task": TaskSerializer(instance).data},
+        )
 
 @receiver(post_save, sender=Submission)
 def send_submission(sender, instance, created, **kwargs):

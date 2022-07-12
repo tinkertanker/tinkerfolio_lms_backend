@@ -28,7 +28,7 @@ class StudentInitialViewSet(viewsets.ViewSet):
             "resources": ResourceSerializer(section.resource_set, many=True).data
         } for section in sections]
 
-        task_queryset = classroom.task_set.all()
+        task_queryset = classroom.task_set.filter(display=1)
         submission_statuses_queryset = [task.submissionstatus_set.filter(student=request.user).first() for task in task_queryset]
         submissions_queryset = [task.submission_set.filter(student=request.user).first() for task in task_queryset]
 
