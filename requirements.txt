@@ -46,3 +46,4 @@ txaio==21.2.1
 typing-extensions==3.10.0.0
 urllib3==1.26.5
 zope.interface==5.4.0
+whitenoise==6.2.0

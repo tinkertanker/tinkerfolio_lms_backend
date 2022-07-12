@@ -18,6 +18,9 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 environ.Env.read_env('.env')
+import mimetypes
+
+mimetypes.add_type("text/css", ".css", True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 #BASE_DIR = Path(__file__).resolve().parent.parent
@@ -57,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -179,9 +183,5 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-import mimetypes
-
-mimetypes.add_type("text/css", ".css", True)
 
 # "hosts": [('127.0.0.1', 6379)],
