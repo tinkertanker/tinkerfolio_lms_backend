@@ -10,7 +10,7 @@ class User(AbstractUser):
             else:
                 return 'Student (no profile)'
         else:
-            return 'Teacher (ID: '+str(self.id)+')'
+            return self.username+' (ID: '+str(self.id)+')'
 
     USER_TYPES = (
         (1, 'student'),
