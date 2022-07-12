@@ -156,9 +156,9 @@ AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = env('AWS_BUCKET_NAME')
 
-STATIC_ROOT = path.join(PROJECT_ROOT,'assets')
+STATIC_ROOT = path.join(BASE_DIR,'assets')
 STATICFILES_DIRS=[
-    os.path.join(PROJECT_ROOT,'static')
+    os.path.join(BASE_DIR,'static')
 ]
 STATIC_URL = '/static/'
 
@@ -179,5 +179,9 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+import mimetypes
+
+mimetypes.add_type("text/css", ".css", True)
 
 # "hosts": [('127.0.0.1', 6379)],
