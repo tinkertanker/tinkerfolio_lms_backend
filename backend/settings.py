@@ -156,11 +156,14 @@ AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = env('AWS_BUCKET_NAME')
 
-STATIC_ROOT = path.join(BASE_DIR,'assets')
+STATIC_ROOT = path.join(PROJECT_ROOT,'assets')
 STATICFILES_DIRS=[
-    os.path.join(BASE_DIR,'static')
+    os.path.join(PROJECT_ROOT,'static')
 ]
 STATIC_URL = '/static/'
+
+# STATIC_ROOT = path.join(PROJECT_ROOT,'static-root')
+# STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
