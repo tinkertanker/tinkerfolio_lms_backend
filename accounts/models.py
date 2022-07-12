@@ -2,6 +2,13 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
+
+    def __str__(self):
+        if self.user_type == 1:
+            return self.studentprofile.name+' (Student; Class: '+self.studentprofile.assigned_class_code+'; Index: '+str(self.studentprofile.index)+')'
+        else:
+            return 'Teacher (ID: '+str(self.id)+')'
+
     USER_TYPES = (
         (1, 'student'),
         (2, 'teacher')
@@ -10,6 +17,10 @@ class User(AbstractUser):
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPES, default=2)
 
 class StudentProfile(models.Model):
+
+    def __str__(self):
+        return self.name+' (Class: '+self.assigned_class_code+'; Index: '+str(self.index)+')'
+
     student = models.OneToOneField(User, on_delete=models.CASCADE)
     assigned_class_code = models.CharField(max_length=6)
     index = models.IntegerField()

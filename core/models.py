@@ -21,6 +21,10 @@ class Classroom(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Task(models.Model):
+
+    def __str__(self):
+        return self.name + ' (Class: ' + self.classroom.name + ')'
+
     STATUS_TYPES = (
         (1, 'In Progress'),
         (2, 'Completed')
@@ -46,6 +50,9 @@ class SubmissionStatus(models.Model):
     class Meta:
         verbose_name_plural = 'SubmissionStatuses'
 
+    def __str__(self):
+        return 'Student ID: ' + str(self.student.id) + '; Task: ' + self.task.name
+
     ## completion status of student's task
     STATUS_TYPES = (
         (0, 'Not started'),
@@ -59,6 +66,10 @@ class SubmissionStatus(models.Model):
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=0)
 
 class Submission(models.Model):
+
+    def __str__(self):
+        return 'Student ID: ' + str(self.student.id) + '; Task: ' + self.task.name
+
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -73,6 +84,10 @@ class Submission(models.Model):
     resubmitted_at = models.DateTimeField(blank=True, null=True)
 
 class Announcement(models.Model):
+
+    def __str__(self):
+        return self.name + ' (Class: ' + self.classroom.name + ')'
+
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -82,6 +97,10 @@ class Announcement(models.Model):
     description = models.TextField()
 
 class ResourceSection(models.Model):
+
+    def __str__(self):
+        return self.name + ' (Class: ' + self.classroom.name + '; ID: ' + str(self.id) + ')'
+
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -90,6 +109,10 @@ class ResourceSection(models.Model):
     name = models.CharField(max_length=200)
 
 class Resource(models.Model):
+
+    def __str__(self):
+        return self.name + ' (Section: ' + self.section.name + '; ID: ' + str(self.id) + ')'
+
     section = models.ForeignKey(ResourceSection, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)

@@ -3,28 +3,28 @@ from .models import *
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['id', 'name', 'teacher__id']
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['id', 'name', 'classroom__name']
 
 @admin.register(SubmissionStatus)
 class SubmissionStatusAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['id', 'student__id', 'task__name']
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['task__name', 'id', 'student__id']
 
 @admin.register(Announcement)
 class AnnouncementAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['id', 'name', 'classroom__name']
 
 @admin.register(ResourceSection)
 class ResourceSectionAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['id', 'name', 'classroom__name']
 
 @admin.register(Resource)
 class ResourceAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['id', 'name', 'section__name']
