@@ -20,7 +20,9 @@ env = environ.Env(
 environ.Env.read_env('.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+#BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+print(BASE_DIR)
 
 PROJECT_ROOT = path.dirname(path.abspath(__file__))
 
@@ -154,7 +156,10 @@ AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = env('AWS_BUCKET_NAME')
 
-STATIC_ROOT = path.join(PROJECT_ROOT,'static-root')
+STATIC_ROOT = path.join(BASE_DIR,'assets')
+STATICFILES_DIRS=[
+    os.path.join(BASE_DIR,'static')
+]
 STATIC_URL = '/static/'
 
 # Default primary key field type

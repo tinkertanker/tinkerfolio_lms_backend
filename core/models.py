@@ -3,6 +3,10 @@ from accounts.models import User
 
 # Create your models here.
 class Classroom(models.Model):
+
+    def __str__(self):
+        return self.name + ' (User ID: ' + str(self.teacher.id) + ')'
+
     STATUS_TYPES = (
         (1, 'Active'),
         (2, 'Archived')
@@ -38,6 +42,10 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class SubmissionStatus(models.Model):
+
+    class Meta:
+        verbose_name_plural = 'SubmissionStatuses'
+
     ## completion status of student's task
     STATUS_TYPES = (
         (0, 'Not started'),
