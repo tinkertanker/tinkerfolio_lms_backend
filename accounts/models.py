@@ -5,9 +5,9 @@ class User(AbstractUser):
 
     def __str__(self):
         if self.user_type == 1:
-            if hasattr(self, 'studentprofile'):
+            try:
                 return self.studentprofile.name+' (Student; Class: '+self.studentprofile.assigned_class_code+'; Index: '+str(self.studentprofile.index)+')'
-            else:
+            except:
                 return 'Student (no profile)'
         else:
             return self.username+' (ID: '+str(self.id)+')'
