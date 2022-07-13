@@ -125,9 +125,11 @@ class TaskViewSet(viewsets.ViewSet):
             classroom=Classroom.objects.get(code=request.data['code']),
             name=request.data['name'],
             description=request.data['description'],
-            max_stars=request.data['max_stars'],
-            display=request.data['display']
+            max_stars=request.data['max_stars']
         )
+        if 'display' in request.data:
+            task.display = request.data['display']
+
         task.save()
 
         return Response(TaskSerializer(task).data)
@@ -140,8 +142,9 @@ class TaskViewSet(viewsets.ViewSet):
         task.name = request.data['name']
         task.description = request.data['description']
         task.status = request.data['status']
-        task.display = request.data['display']
         task.max_stars = request.data['max_stars']
+        if 'display' in request.data:
+            task.display = request.data['display']
         task.save()
 
         return Response(TaskSerializer(task).data)
