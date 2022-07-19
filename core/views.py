@@ -1,5 +1,7 @@
 import uuid
 from itertools import chain
+from django.utils import timezone
+
 from rest_framework import viewsets
 from rest_framework.response import Response
 from django.core.files.base import ContentFile
@@ -127,8 +129,13 @@ class TaskViewSet(viewsets.ViewSet):
             description=request.data['description'],
             max_stars=request.data['max_stars']
         )
+
         if 'display' in request.data:
             task.display = request.data['display']
+            if request.data['display'] == 1:
+                task.published_at = timezone.now()
+        else:
+            task.published_at = timezone.now()
 
         task.save()
 
@@ -143,8 +150,13 @@ class TaskViewSet(viewsets.ViewSet):
         task.description = request.data['description']
         task.status = request.data['status']
         task.max_stars = request.data['max_stars']
+
         if 'display' in request.data:
             task.display = request.data['display']
+
+            if task.published_at is None and task.display == 1:
+                task.published_at = timezone.now()
+
         task.save()
 
         return Response(TaskSerializer(task).data)
