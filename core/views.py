@@ -114,10 +114,12 @@ class StudentProfileViewSet(viewsets.ViewSet):
 
 class TaskViewSet(viewsets.ViewSet):
     def list(self, request):
-        verify_classroom_owner(request.query_params['code'], request.user)
+        if 'code' in request.query_params:
+            classroom = Classroom.objects.get(code=request.query_params['code'])
+            queryset = Task.objects.filter(classroom=classroom, classroom__teacher=request.user)
+        else:
+            queryset = Task.objects.filter(classroom__teacher=request.user)
 
-        classroom = Classroom.objects.get(code=request.query_params['code'])
-        queryset = Task.objects.filter(classroom=classroom)
         return Response(TaskSerializer(queryset, many=True).data)
 
     def create(self, request):
