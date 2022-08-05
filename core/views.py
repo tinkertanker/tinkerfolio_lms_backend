@@ -123,25 +123,34 @@ class TaskViewSet(viewsets.ViewSet):
         return Response(TaskSerializer(queryset, many=True).data)
 
     def create(self, request):
-        verify_classroom_owner(request.data['code'], request.user)
+        print(request.query_params)
+        print('bulk' in request.query_params)
 
-        task = Task(
-            classroom=Classroom.objects.get(code=request.data['code']),
-            name=request.data['name'],
-            description=request.data['description'],
-            max_stars=request.data['max_stars']
-        )
+        def add_task(task_data):
+            task = Task(
+                classroom=Classroom.objects.get(code=task_data['code']),
+                name=task_data['name'],
+                description=task_data['description'],
+                max_stars=task_data['max_stars']
+            )
 
-        if 'display' in request.data:
-            task.display = request.data['display']
-            if request.data['display'] == 1:
+            if 'display' in task_data:
+                task.display = task_data['display']
+                if task_data['display'] == 1:
+                    task.published_at = timezone.now()
+            else:
                 task.published_at = timezone.now()
+
+            task.save()
+            return task
+
+        if 'bulk' not in request.query_params:
+            task = add_task(request.data)
+            return Response(TaskSerializer(task).data)
         else:
-            task.published_at = timezone.now()
-
-        task.save()
-
-        return Response(TaskSerializer(task).data)
+            # Bulk add tasks
+            tasks = [add_task(task_data) for task_data in request.data]
+            return Response(TaskSerializer(tasks, many=True).data)
 
     def update(self, request, **kwargs):
         task = Task.objects.get(pk=int(kwargs['pk']))
