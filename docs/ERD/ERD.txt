@@ -1,0 +1,42 @@
+[Classroom](id*,name,teacher_id,student_indexes,code,status,created_at);
+[Tasks](id*,description,name,status,max_stars,updated_at,classroom_id,created_at,display,published_at);
+[Submission](id*,image,stars,comments,text,student_id,task_id,created_at,resubmitted_at);
+[SubmissionStatus](id*,task_id,student_id,status);
+[Announcement](id*,name,created_at,updated_at,description,classroom_id);
+[ResourceSection](id*,created_at,updated_at,classroom_id,name);
+[Resources](id*,created_at,updated_at,name,file,section_id);
+[User](id*,password,is_superuser,last_login,username,is_staff,first_name,last_name,email,is_active,date_joined,user_type);
+[StudentProfile](id*,name,score,created_by_student,index,student_id,assigned_class_code);
+[UserGroups](id*,user_id,permission_id);
+[UserUserPermissions](id*,user_id,permission_id);
+
+
+<Releases>();
+<Have>();
+<Announces>();
+<Publishes>();
+<Contains>();
+<Has>();
+<BelongsTo>();
+<BelongTo>();
+<Contain>();
+
+Classroom --- Releases;
+Tasks --- Releases;
+Tasks --- Have;
+Submission --- Have;
+Submission --- Contains;
+SubmissionStatus --- Contains;
+Classroom --- Announces;
+Announcement --- Announces;
+ResourceSection --- Publishes;
+Classroom --- Publishes;
+ResourceSection --- Has;
+Resources --- Has;
+Classroom --- BelongsTo;
+User --- BelongsTo;
+User --- {StudentProfile};
+User --- BelongTo;
+UserGroups --- BelongTo;
+UserGroups --- Contain;
+UserUserPermissions --- Contain;

@@ -1,0 +1,2 @@
+To view the ER diagram, go to this link: https://www.comp.nus.edu.sg/~cs2102/Tools/ERD/.
+Copy and paste the text in `ERD.txt` to view the ER diagram. 
