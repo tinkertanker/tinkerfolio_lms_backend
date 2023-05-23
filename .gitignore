@@ -92,6 +92,7 @@ db.sqlite3
 backend/static-root/
 assets
 
-
-# Others
-.vscode/settings.json
+# Prod/Dev Deployment Secrets
+env.docker
+env.docker.production
+env.docker.development
