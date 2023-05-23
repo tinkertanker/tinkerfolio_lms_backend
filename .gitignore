@@ -91,3 +91,8 @@ db.sqlite3
 # Django static files
 backend/static-root/
 assets
+
+# Prod/Dev Deployment Secrets
+env.docker
+env.docker.production
+env.docker.development
