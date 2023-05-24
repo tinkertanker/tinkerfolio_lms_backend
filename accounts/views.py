@@ -34,3 +34,4 @@ class StudentRegister(viewsets.ViewSet):
         student_profile.save()
 
         return Response({'code': request.data['code'], 'index': new_index})
+
