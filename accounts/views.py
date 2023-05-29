@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 
 from accounts.models import User, StudentProfile
-from core.models import Classroom
+from core.models import Classroom, Enroll
 
 
 class StudentRegister(viewsets.ViewSet):
@@ -33,5 +33,26 @@ class StudentRegister(viewsets.ViewSet):
         )
         student_profile.save()
 
+        enroll = Enroll(
+            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=new_index
+        )
+        enroll.save()
+
         return Response({'code': request.data['code'], 'index': new_index})
 
+class TeacherRegister(viewsets.ViewSet):
+    def create(self, request):
+        teacher = User(username=request.data['username'], user_type=2, email=request.data['email'], first_name=request.data['first_name'], last_name=request.data['last_name'])
+        teacher.set_password(request.data['password'])
+        teacher.save()
+
+        return Response({'Account': 'Teacher','Username': request.data['username'], 'First Name': request.data['first_name'], 'First Name': request.data['last_name']})
+
+class StudentRegister(viewsets.ViewSet):
+    def create(self, request):
+        student = User(username=request.data['username'], user_type=3, email=request.data['email'], first_name=request.data['first_name'], last_name=request.data['last_name'])
+        student.set_password(request.data['password'])
+        student.save()
+
+        return Response({'Account': 'Student','Username': request.data['username'], 'First Name': request.data['first_name'], 'First Name': request.data['last_name']})
+    
