@@ -4,9 +4,19 @@ from .models import *
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
+    list_display=('username', 'email', 'first_name', 'last_name', 'is_staff', 'user_type')
     list_filter = ['user_type']
     search_fields = ['id', 'studentprofile__index', 'studentprofile__assigned_class_code', 'studentprofile__name']
+
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('User Type', {
+            'fields': ('user_type',)
+        }),
+    )
 
 @admin.register(StudentProfile)
 class StudentProfileAdmin(admin.ModelAdmin):
     search_fields = ['id', 'index', 'assigned_class_code', 'name']
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)

@@ -4,20 +4,30 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
 
     def __str__(self):
+        # Temp Student Account
         if self.user_type == 1:
             try:
-                return self.studentprofile.name+' (Student; Class: '+self.studentprofile.assigned_class_code+'; Index: '+str(self.studentprofile.index)+')'
+                return self.studentprofile.name+' [Temporary Student] Class: ' + self.studentprofile.assigned_class_code + '; Index: ' + str(self.studentprofile.index)
             except:
                 return 'Student (no profile)'
-        else:
-            return self.username+' (ID: '+str(self.id)+')'
+            
+        # Perm Teacher Account
+        if self.user_type == 2:
+            return '[Teacher] ' + self.username + ' (ID: '+ str(self.id) + ')'
+        
+
+        # Perm Student Account
+        if self.user_type == 3:
+            return '[Student] ' + self.username + ' (ID: '+ str(self.id) + ')'
+            
 
     USER_TYPES = (
-        (1, 'student'),
-        (2, 'teacher')
+        (1, 'temporaryStudentAccount'),
+        (2, 'teacher'),
+        (3, 'student')
     )
 
-    user_type = models.PositiveSmallIntegerField(choices=USER_TYPES, default=2)
+    user_type = models.PositiveSmallIntegerField(choices=USER_TYPES)
 
 class StudentProfile(models.Model):
 

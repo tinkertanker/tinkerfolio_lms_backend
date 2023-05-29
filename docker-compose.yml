@@ -1,37 +1,40 @@
 version: "3.7"
 
 services:
-    django:
-        build: .
-        container_name: django
-        command: python manage.py runserver 0.0.0.0:8000
-        volumes:
-            - .:/django
-        ports:
-            - "8000:8000"
-        environment:
-            - DEBUG=1
-            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
-            - CELERY_BROKER=redis://redis:6379/0
-            - CELERY_BACKEND=redis://redis:6379/0
-        env_file:
-            - env.docker
-        depends_on:
-            - pgdb
-            - redis
-    pgdb:
-        image: postgres
-        container_name: echoclass_pgdb
-        ports:
-            - "5432:5432"
-        environment:
-            - POSTGRES_DB=echoclass
-            - POSTGRES_USER=postgres
-            - POSTGRES_PASSWORD=postgres
-    redis:
-        image: "redis:alpine"
-        container_name: echoclass_redis
-
+  django:
+    build: .
+    container_name: django
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/django
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    env_file:
+      - env.docker
+    depends_on:
+      - pgdb
+      - redis
+  pgdb:
+    image: postgres
+    container_name: echoclass_pgdb
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=echoclass
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  redis:
+    image: "redis:alpine"
+    container_name: echoclass_redis
+  lms_frontend:
+    image: "lms_frontend"
+    ports:
+      - 3000:3000
 # services:
 #   redis:
 #     image: redis:alpine

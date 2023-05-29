@@ -14,6 +14,7 @@ from pathlib import Path
 from os import path
 import environ
 import os
+
 env = environ.Env(
     DEBUG=(bool, False)
 )

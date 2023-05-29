@@ -28,3 +28,7 @@ class ResourceSectionAdmin(admin.ModelAdmin):
 @admin.register(Resource)
 class ResourceAdmin(admin.ModelAdmin):
     search_fields = ['id', 'name', 'section__name']
+
+@admin.register(Enroll)
+class Enroll(admin.ModelAdmin):
+    search_fields = ['studentUserID', 'classroom', 'studentIndex' ]

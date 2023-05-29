@@ -122,3 +122,11 @@ class Resource(models.Model):
     name = models.CharField(max_length=200)
     ## File Name Format: (Resource Section ID)_(Resource ID)_(Resource Name).(format)
     file = models.FileField(blank=True, null=True, default=None)
+
+class Enroll(models.Model):
+    def __str__(self):
+        return self.studentUserID.name + ' (Classroom: ' + self.classroom.name + '; Index: ' + str(self.studentIndex) + ')'
+
+    studentUserID = models.ForeignKey(User, on_delete=models.CASCADE)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    studentIndex = models.IntegerField()
