@@ -4,11 +4,15 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView
 )
-from .views import StudentRegister
+from .views import StudentRegister, TeacherRegister, StudentSignUp
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'student_register', StudentRegister, basename="student_register")
+
+# USE THIS FOR REGISTER
+router.register(r'teacher_register', TeacherRegister, basename="teacher_register")
+router.register(r'student_signup', StudentSignUp, basename="student_signup")
 
 urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
