@@ -27,7 +27,7 @@ class User(AbstractUser):
         (3, 'student')
     )
 
-    user_type = models.PositiveSmallIntegerField(choices=USER_TYPES)
+    user_type = models.PositiveSmallIntegerField(choices=USER_TYPES,default=2)
 
 class StudentProfile(models.Model):
 
