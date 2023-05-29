@@ -10,7 +10,7 @@
 [UserGroups](id*,user_id,permission_id);
 [UserUserPermissions](id*,user_id,permission_id);
 
-
+<Enrolls>(id*, user_id, classroom_id, index);
 <Releases>();
 <Have>();
 <Announces>();
@@ -40,3 +40,5 @@ User --- BelongTo;
 UserGroups --- BelongTo;
 UserGroups --- Contain;
 UserUserPermissions --- Contain;
+StudentProfile --- Enrolls;
+Classroom --- Enrolls;
