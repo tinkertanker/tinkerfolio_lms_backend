@@ -54,5 +54,13 @@ class StudentRegister(viewsets.ViewSet):
         student.set_password(request.data['password'])
         student.save()
 
-        return Response({'Account': 'Student','Username': request.data['username'], 'First Name': request.data['first_name'], 'First Name': request.data['last_name']})
-    
+        return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name', 'Last Name': 'last_name'})
+
+class StudentSignUp(viewsets.ViewSet):
+    def create(self, request):
+        enroll = Enroll(
+            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=request.data['index']
+        )
+        enroll.save()
+
+        return Response({'Student Account': 'studentUserId', 'Classroom': 'classroom', 'Index': 'studentIndex'})
