@@ -1,6 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import status
 
 from accounts.models import User, StudentProfile
 from core.models import Classroom, Enroll
@@ -68,3 +70,27 @@ class StudentJoinClass(viewsets.ViewSet):
         enroll.save()
 
         return Response({'Student Account': 'studentUserId', 'Classroom': 'classroom', 'Index': 'studentIndex'})
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.user
+        inputUserType = request.data.get('userType')
+        inputUserCode = 0
+        if inputUserType == "teacher":
+            inputUserCode = 2
+        elif inputUserType == "student":
+            inputUserCode = 3
+        if user.user_type != inputUserCode:
+            return Response({'error': 'Invalid user type.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        tokens = serializer.validated_data
+        response_data = {
+           'access': str(tokens['access']),
+            'refresh': str(tokens),
+            'userType': user.user_type,
+        }
+        # response_data = self.get_response_data(tokens)
+
+        return Response(response_data)
