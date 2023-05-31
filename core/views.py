@@ -462,7 +462,3 @@ class ResourceViewSet(viewsets.ViewSet):
 
         return Response(True)
 
-class EnrollViewSet(viewsets.ViewSet):
-    # need to retrieve and list all classrooms the student is in
-    def list(self, request):
-        pass
