@@ -5,8 +5,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
 
 from accounts.models import User, StudentProfile
-from core.models import Classroom, Enroll
-
+from core.models import Classroom
+from student_core.models import Enroll
 
 class StudentRegister(viewsets.ViewSet):
     '''

@@ -141,6 +141,13 @@ class StudentResourceViewSet(viewsets.ViewSet):
         if request.user.studentprofile.assigned_class_code != resource.section.classroom.code:
             return Response('Student not part of this classroom.', status.HTTP_403_FORBIDDEN)
         return Response(ResourceSerializer(resource).data)
+    
+
+class EnrollViewSet(viewsets.ViewSet):
+    # need to retrieve and list all classrooms the student is in
+    def list(self, request):
+        pass
+
 
 @api_view(['GET'])
 def Leaderboard(request):
