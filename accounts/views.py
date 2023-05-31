@@ -42,7 +42,7 @@ class StudentRegister(viewsets.ViewSet):
 
         return Response({'code': request.data['code'], 'index': new_index})
 
-class TeacherRegister(viewsets.ViewSet):
+class TeacherSignUp(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
         teacher = User(username=request.data['username'], user_type=2, email=request.data['email'], first_name=request.data['first_name'], last_name=request.data['last_name'])
