@@ -25,7 +25,6 @@ class ClassroomViewSet(viewsets.ViewSet):
 
     def list(self, request):
         # Obtains a list of all the Classrooms belonging to the teacher, with all the attributes
-
         queryset = Classroom.objects.filter(teacher=request.user)
         classrooms = ClassroomSerializer(queryset, many=True)
         return Response(classrooms.data)
