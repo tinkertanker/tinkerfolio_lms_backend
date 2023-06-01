@@ -13,6 +13,8 @@ from core.serializers import *
 
 from datetime import datetime
 
+from core.utils import verify_classroom_participant
+
 class StudentInitialViewSet(viewsets.ViewSet):
     def list(self, request):
         ## Get student's initial tasks and submissions
@@ -150,6 +152,14 @@ class EnrollViewSet(viewsets.ViewSet):
         queryset = Classroom.objects.filter(studentUserID=request.user)
         classrooms = ClassroomSerializer(queryset, many=True)
         return Response(classrooms.data)
+
+    def retrieve(self, request, **kwargs):
+        if request.user.user_type == 2:
+            return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
+        
+        verify_classroom_participant(kwargs['pk'], request.user)
+        classroom = Classroom.objects.get(code=kwargs['pk'])
+        return Response(ClassroomSerializer(classroom).data)
 
 
 @api_view(['GET'])
