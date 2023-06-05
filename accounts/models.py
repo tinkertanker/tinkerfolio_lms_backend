@@ -40,3 +40,11 @@ class StudentProfile(models.Model):
     name = models.CharField(max_length=200, default="")
     score = models.IntegerField(default=0)
     created_by_student = models.BooleanField(default=False)
+
+class Enroll(models.Model):
+    def __str__(self):
+        return self.studentUserID + ' ' + self.classroom + ' ' + self.studentIndex
+    
+    studentUserID = models.IntegerField()
+    classroom = models.CharField(max_length=6)
+    studentIndex = models.IntegerField()
