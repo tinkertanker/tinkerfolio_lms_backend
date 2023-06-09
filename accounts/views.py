@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from rest_framework import status
 
 from accounts.models import User, StudentProfile
@@ -83,14 +83,29 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         elif inputUserType == "student":
             inputUserCode = 3
         if user.user_type != inputUserCode:
-            return Response({'error': 'Invalid user type.'}, status=status.HTTP_400_BAD_REQUEST)
+            return self.error_response('Invalid user type.')
 
         tokens = serializer.validated_data
         response_data = {
-           'access': str(tokens['access']),
-            'refresh': str(tokens),
+            'access': str(tokens['access']),
+            'refresh': str(tokens['refresh']),
             'userType': user.user_type,
         }
-        # response_data = self.get_response_data(tokens)
 
         return Response(response_data)
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        tokens = serializer.validated_data
+        response_data = {
+            'access': str(tokens['access']),
+            'refresh': str(tokens['refresh']),
+        }
+
+        return Response(response_data)
+
+class CustomTokenVerifyView(TokenVerifyView):
+    pass

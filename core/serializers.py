@@ -3,6 +3,14 @@ from rest_framework import serializers
 from core.models import Classroom, Task, Submission, SubmissionStatus, Announcement, ResourceSection, Resource
 from accounts.models import StudentProfile
 
+class EnrollSerializer(serializers.Serializer):
+    code = serializers.CharField()
+
+    def validate_code(self, value):
+        if not Classroom.objects.filter(code=value).exists():
+            raise serializers.ValidationError('Invalid classroom code.')
+        return value
+    
 class ClassroomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Classroom
