@@ -145,32 +145,33 @@ class StudentResourceViewSet(viewsets.ViewSet):
         return Response(ResourceSerializer(resource).data)
     
 class EnrollViewSet(viewsets.ViewSet):
+    # join a course
     def create(self, request):
-        code = request.data['code']
-        classroom = Classroom.objects.get(code=code)
-        if classroom.studentUserID.filter(id=request.user.id).exists():
-            return Response('Student already enrolled.', status.HTTP_403_FORBIDDEN)
-        classroom.studentUserID.add(request.user)
+        # Obtains the classroom code, sets up the index number of the student and updates the classroom
+        classroom = Classroom.objects.get(code=request.data['code'])
+        new_index = max(classroom.student_indexes) + 1
+        classroom.student_indexes = classroom.student_indexes + [new_index]
+        classroom.save()
         
-        # Return the serialized classroom data
-        serializer = ClassroomSerializer(classroom)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        enroll = Enroll(classroom=classroom, studentUserID=request.user, studentIndex=new_index)
+        enroll.save()
+
+        return Response(EnrollSerializer(enroll).data, status=status.HTTP_201_CREATED)
+
     
     # need to retrieve and list all classrooms the student is in
     def list(self, request):
-        # Obtains a list of all the Classrooms belonging to the teacher, with all the attributes
-
-        queryset = Classroom.objects.filter(studentUserID=request.user)
-        classrooms = ClassroomSerializer(queryset, many=True)
-        return Response(classrooms.data)
-
+        queryset = Enroll.objects.filter(studentUserID=request.user)
+        enrollments = EnrollSerializer(queryset, many=True)
+        return Response(enrollments.data)
+# 
     def retrieve(self, request, **kwargs):
         if request.user.user_type == 2:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
         
         verify_classroom_participant(kwargs['pk'], request.user)
-        classroom = Classroom.objects.get(code=kwargs['pk'])
-        return Response(ClassroomSerializer(classroom).data)
+        enrolls = Enroll.objects.get(classroom=kwargs['pk'])
+        return Response(EnrollSerializer(enrolls).data)
 
 
 @api_view(['GET'])

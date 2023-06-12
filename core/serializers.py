@@ -2,14 +2,18 @@ from rest_framework import serializers
 
 from core.models import Classroom, Task, Submission, SubmissionStatus, Announcement, ResourceSection, Resource
 from accounts.models import StudentProfile
+from student_core.models import Enroll
 
-class EnrollSerializer(serializers.Serializer):
-    code = serializers.CharField()
+class EnrollSerializer(serializers.ModelSerializer):
+    classroom = serializers.SerializerMethodField()
 
-    def validate_code(self, value):
-        if not Classroom.objects.filter(code=value).exists():
-            raise serializers.ValidationError('Invalid classroom code.')
-        return value
+    class Meta:
+        model = Enroll
+        fields = '__all__'
+
+    # since classroom is a foreign key, we need to serialize it
+    def get_classroom(self, enroll):
+        return ClassroomSerializer(enroll.classroom).data
     
 class ClassroomSerializer(serializers.ModelSerializer):
     class Meta:
