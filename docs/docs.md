@@ -23,6 +23,13 @@ OUTDATED
 - ```User``` - username, email, first name, last name, user type
 - ```Classroom``` - teacher, name, code, student indexes (no. of students) eg. [1, 2, 3]
 - ```Enroll``` - student id, classroom id, student index
+- ```Student profile``` - student, class code, index, name, score \\
+To keep track of leaderboard
+- ```Announcement``` - classrooom, name, description \\
+Announcement for each class 
+- ```SubmissionStatuses``` - task, student, status 
+- ```Task``` - classroom, name, description, status, display, max stars \\
+Status for each task in a class
 
 # To update changes
 - ```docker compose up```
