@@ -153,7 +153,7 @@ class EnrollViewSet(viewsets.ViewSet):
         classroom.student_indexes = classroom.student_indexes + [new_index]
         classroom.save()
         
-        enroll = Enroll(classroom=classroom, studentUserID=request.user, studentIndex=new_index)
+        enroll = Enroll(classroom=classroom, studentUserID=request.user, studentIndex=new_index, score=0)
         enroll.save()
 
         return Response(EnrollSerializer(enroll).data, status=status.HTTP_201_CREATED)

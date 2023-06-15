@@ -36,7 +36,7 @@ class StudentRegister(viewsets.ViewSet):
         student_profile.save()
 
         enroll = Enroll(
-            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=new_index
+            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=new_index, score=0
         )
         enroll.save()
 
@@ -61,11 +61,12 @@ class StudentSignUp(viewsets.ViewSet):
 
         return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name', 'Last Name': 'last_name'})
 
+# not used
 class StudentJoinClass(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
         enroll = Enroll(
-            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=request.data['index']
+            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=request.data['index'], score=0
         )
         enroll.save()
 

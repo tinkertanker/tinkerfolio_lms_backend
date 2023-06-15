@@ -10,3 +10,4 @@ class Enroll(models.Model):
     studentUserID = models.ForeignKey(User, on_delete=models.CASCADE)
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     studentIndex = models.IntegerField()
+    score = models.IntegerField(default=0)
