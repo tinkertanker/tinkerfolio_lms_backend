@@ -147,8 +147,10 @@ class StudentResourceViewSet(viewsets.ViewSet):
 class EnrollViewSet(viewsets.ViewSet):
     # join a course
     def create(self, request):
-        # Obtains the classroom code, sets up the index number of the student and updates the classroom
         classroom = Classroom.objects.get(code=request.data['code'])
+        # checks if the student is already in the classroom
+        if Enroll.objects.filter(classroom=classroom, studentUserID=request.user).exists():
+            return Response('Student is already in the classroom.', status.HTTP_403_FORBIDDEN)
         new_index = max(classroom.student_indexes) + 1
         classroom.student_indexes = classroom.student_indexes + [new_index]
         classroom.save()
