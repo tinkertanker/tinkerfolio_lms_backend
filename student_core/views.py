@@ -15,6 +15,8 @@ from datetime import datetime
 
 from core.utils import verify_classroom_participant
 
+# TO EDIT: SPECIFY CLASSROOM CODE 
+# this fetches the announcements and resources of a classroom
 class StudentInitialViewSet(viewsets.ViewSet):
     def list(self, request):
         ## Get student's initial tasks and submissions
@@ -22,7 +24,10 @@ class StudentInitialViewSet(viewsets.ViewSet):
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
         profile = StudentProfile.objects.get(student=request.user)
-        classroom = Classroom.objects.get(code=profile.assigned_class_code)
+        # CLASSROOM SHOULD BE BASED ON PARAMETER
+        classroom = Classroom.objects.get(code=request.query_params['code'])
+
+        # classroom = Classroom.objects.get(code=profile.assigned_class_code)
         announcements_queryset = classroom.announcement_set.all()
 
         sections = ResourceSection.objects.filter(classroom=classroom)
@@ -137,6 +142,8 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(status).data)
 
+# TO EDIT: SPECIFY CLASSROOM CODE
+# this fetches the resources files
 class StudentResourceViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
         resource = Resource.objects.get(id=kwargs['pk'])
@@ -160,7 +167,6 @@ class EnrollViewSet(viewsets.ViewSet):
 
         return Response(EnrollSerializer(enroll).data, status=status.HTTP_201_CREATED)
 
-    
     # need to retrieve and list all classrooms the student is in
     def list(self, request):
         queryset = Enroll.objects.filter(studentUserID=request.user)
@@ -175,9 +181,14 @@ class EnrollViewSet(viewsets.ViewSet):
         enrolls = Enroll.objects.get(classroom=kwargs['pk'])
         return Response(EnrollSerializer(enrolls).data)
 
-
+# TO EDIT TO SPECIFY CLASSROOM CODE
+# this fetches the ranking of the students in the classroom
 @api_view(['GET'])
 def Leaderboard(request):
-    profile_instances = StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)
-    profiles = StudentProfileSerializer(profile_instances, many=True).data
+    profile_instances = Enroll.objects.filter(classroom=request.data['code']).order_by('-score')
+    profiles = EnrollSerializer(profile_instances, many=True).data
     return Response(profiles)
+
+    # StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)
+    # profiles = StudentProfileSerializer(profile_instances, many=True).data
+    # return Response(profiles)
