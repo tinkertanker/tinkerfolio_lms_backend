@@ -25,6 +25,12 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         model = StudentProfile
         fields = ['index', 'name', 'score']
 
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Enroll
+        fields = ['studentUserID', 'studentIndex', 'score']
+
+
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task

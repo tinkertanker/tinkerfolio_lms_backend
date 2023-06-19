@@ -15,15 +15,14 @@ from datetime import datetime
 
 from core.utils import verify_classroom_participant
 
-# TO EDIT: SPECIFY CLASSROOM CODE 
-# this fetches the announcements and resources of a classroom
 class StudentInitialViewSet(viewsets.ViewSet):
     def list(self, request):
         ## Get student's initial tasks and submissions
-        if request.user.user_type != 1:
+        print(request.user.user_type)
+        if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
-        profile = StudentProfile.objects.get(student=request.user)
+        student = Enroll.objects.get(studentUserID=request.user.id)
         # CLASSROOM SHOULD BE BASED ON PARAMETER
         classroom = Classroom.objects.get(code=request.query_params['code'])
 
@@ -41,7 +40,7 @@ class StudentInitialViewSet(viewsets.ViewSet):
         submissions_queryset = [task.submission_set.filter(student=request.user).first() for task in task_queryset]
 
         return Response({
-            'profile': StudentProfileSerializer(profile).data,
+            'student': StudentSerializer(student).data,
             'classroom': ClassroomSerializer(classroom).data,
 
             'announcements': AnnouncementSerializer(announcements_queryset, many=True).data,
@@ -71,8 +70,9 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
 
         if 'image' in request.data:
             image = request.data['image']
+            class_code = request.data['code']
             filename = '{}_{}_{}.{}'.format(
-                request.user.studentprofile.assigned_class_code, request.data['task_id'],
+                class_code, request.data['task_id'],
                 request.user.id, image.name.split('.')[1]
             )
             sub.image.save(filename, ContentFile(image.read()))
@@ -95,8 +95,9 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
 
         if 'image' in request.data:
             image = request.data['image']
+            class_code = request.data['code']
             filename = '{}_{}_{}.{}'.format(
-                request.user.studentprofile.assigned_class_code, request.data['task_id'],
+                class_code, request.data['task_id'],
                 request.user.id, image.name.split('.')[1]
             )
             sub.image.save(filename, ContentFile(image.read()))
@@ -147,7 +148,8 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 class StudentResourceViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
         resource = Resource.objects.get(id=kwargs['pk'])
-        if request.user.studentprofile.assigned_class_code != resource.section.classroom.code:
+        class_code = request.query_params['code']
+        if class_code != resource.section.classroom.code:
             return Response('Student not part of this classroom.', status.HTTP_403_FORBIDDEN)
         return Response(ResourceSerializer(resource).data)
     
@@ -185,7 +187,9 @@ class EnrollViewSet(viewsets.ViewSet):
 # this fetches the ranking of the students in the classroom
 @api_view(['GET'])
 def Leaderboard(request):
-    profile_instances = Enroll.objects.filter(classroom=request.data['code']).order_by('-score')
+    class_code = request.query_params['code']
+    classroom = Classroom.objects.get(code=class_code)
+    profile_instances = Enroll.objects.filter(classroom=classroom).order_by('-score')
     profiles = EnrollSerializer(profile_instances, many=True).data
     return Response(profiles)
 
