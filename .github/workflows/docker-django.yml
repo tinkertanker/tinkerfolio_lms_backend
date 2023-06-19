@@ -1,0 +1,32 @@
+name: Django CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build and run Docker container
+        run: |
+          docker build -t my-django-app .
+          docker run --name my-django-container my-django-app
+
+      - name: Run Django tests
+        run: docker exec my-django-container python manage.py test
+
+      - name: Lint code
+        run: docker exec my-django-container flake8
+
+      - name: Run migrations
+        run: docker exec my-django-container python manage.py migrate
+
