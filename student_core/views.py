@@ -22,13 +22,10 @@ class StudentInitialViewSet(viewsets.ViewSet):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
-        student = Enroll.objects.get(studentUserID=request.user.id)
-        # CLASSROOM SHOULD BE BASED ON PARAMETER
         classroom = Classroom.objects.get(code=request.query_params['code'])
-
-        # classroom = Classroom.objects.get(code=profile.assigned_class_code)
+        profile = Enroll.objects.get(studentUserID=request.user.id, classroom=classroom)
+     
         announcements_queryset = classroom.announcement_set.all()
-
         sections = ResourceSection.objects.filter(classroom=classroom)
         resources = [{
             "section": ResourceSectionSerializer(section).data,
@@ -38,9 +35,9 @@ class StudentInitialViewSet(viewsets.ViewSet):
         task_queryset = classroom.task_set.filter(display=1)
         submission_statuses_queryset = [task.submissionstatus_set.filter(student=request.user).first() for task in task_queryset]
         submissions_queryset = [task.submission_set.filter(student=request.user).first() for task in task_queryset]
-
+       
         return Response({
-            'student': StudentSerializer(student).data,
+            'profile': StudentSerializer(profile).data,
             'classroom': ClassroomSerializer(classroom).data,
 
             'announcements': AnnouncementSerializer(announcements_queryset, many=True).data,
@@ -190,7 +187,7 @@ def Leaderboard(request):
     class_code = request.query_params['code']
     classroom = Classroom.objects.get(code=class_code)
     profile_instances = Enroll.objects.filter(classroom=classroom).order_by('-score')
-    profiles = EnrollSerializer(profile_instances, many=True).data
+    profiles = StudentSerializer(profile_instances, many=True).data
     return Response(profiles)
 
     # StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)
