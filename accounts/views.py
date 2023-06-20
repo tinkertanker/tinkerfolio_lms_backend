@@ -99,11 +99,12 @@ class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+      
 
         tokens = serializer.validated_data
         response_data = {
             'access': str(tokens['access']),
-            'refresh': str(tokens['refresh']),
+            # 'refresh': str(tokens['refresh']),
         }
 
         return Response(response_data)
