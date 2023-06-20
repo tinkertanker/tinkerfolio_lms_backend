@@ -25,6 +25,16 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         model = StudentProfile
         fields = ['index', 'name', 'score']
 
+class StudentSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Enroll
+        fields = ['studentUserID', 'studentIndex', 'score', 'name']
+
+    def get_name(self, obj):
+        return f"{obj.studentUserID.first_name} {obj.studentUserID.last_name}"
+
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
