@@ -57,7 +57,7 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         return Response(SubmissionSerializer(sub).data)
 
     def create(self, request):
-        if request.user.user_type != 1:
+        if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
         sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=request.user)
