@@ -4,4 +4,4 @@ from .models import *
 
 @admin.register(Enroll)
 class Enroll(admin.ModelAdmin):
-    search_fields = ['studentUserID', 'classroom', 'studentIndex' ]
+    search_fields = ['studentUserID', 'classroom', 'studentIndex', 'score']

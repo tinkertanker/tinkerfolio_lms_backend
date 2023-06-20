@@ -18,13 +18,14 @@ from core.utils import verify_classroom_participant
 class StudentInitialViewSet(viewsets.ViewSet):
     def list(self, request):
         ## Get student's initial tasks and submissions
-        if request.user.user_type != 1:
+        print(request.user.user_type)
+        if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
-        profile = StudentProfile.objects.get(student=request.user)
-        classroom = Classroom.objects.get(code=profile.assigned_class_code)
+        classroom = Classroom.objects.get(code=request.query_params['code'])
+        profile = Enroll.objects.get(studentUserID=request.user.id, classroom=classroom)
+     
         announcements_queryset = classroom.announcement_set.all()
-
         sections = ResourceSection.objects.filter(classroom=classroom)
         resources = [{
             "section": ResourceSectionSerializer(section).data,
@@ -34,9 +35,10 @@ class StudentInitialViewSet(viewsets.ViewSet):
         task_queryset = classroom.task_set.filter(display=1)
         submission_statuses_queryset = [task.submissionstatus_set.filter(student=request.user).first() for task in task_queryset]
         submissions_queryset = [task.submission_set.filter(student=request.user).first() for task in task_queryset]
-
+       
         return Response({
-            'profile': StudentProfileSerializer(profile).data,
+            'profile': StudentSerializer(profile).data,
+            'name': request.user.first_name + ' ' + request.user.last_name,
             'classroom': ClassroomSerializer(classroom).data,
 
             'announcements': AnnouncementSerializer(announcements_queryset, many=True).data,
@@ -56,7 +58,7 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         return Response(SubmissionSerializer(sub).data)
 
     def create(self, request):
-        if request.user.user_type != 1:
+        if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
         sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=request.user)
@@ -66,8 +68,9 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
 
         if 'image' in request.data:
             image = request.data['image']
+            class_code = request.data['code']
             filename = '{}_{}_{}.{}'.format(
-                request.user.studentprofile.assigned_class_code, request.data['task_id'],
+                class_code, request.data['task_id'],
                 request.user.id, image.name.split('.')[1]
             )
             sub.image.save(filename, ContentFile(image.read()))
@@ -90,8 +93,9 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
 
         if 'image' in request.data:
             image = request.data['image']
+            class_code = request.data['code']
             filename = '{}_{}_{}.{}'.format(
-                request.user.studentprofile.assigned_class_code, request.data['task_id'],
+                class_code, request.data['task_id'],
                 request.user.id, image.name.split('.')[1]
             )
             sub.image.save(filename, ContentFile(image.read()))
@@ -137,28 +141,32 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(status).data)
 
+# TO EDIT: SPECIFY CLASSROOM CODE
+# this fetches the resources files
 class StudentResourceViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
         resource = Resource.objects.get(id=kwargs['pk'])
-        if request.user.studentprofile.assigned_class_code != resource.section.classroom.code:
+        class_code = request.query_params['code']
+        if class_code != resource.section.classroom.code:
             return Response('Student not part of this classroom.', status.HTTP_403_FORBIDDEN)
         return Response(ResourceSerializer(resource).data)
     
 class EnrollViewSet(viewsets.ViewSet):
     # join a course
     def create(self, request):
-        # Obtains the classroom code, sets up the index number of the student and updates the classroom
         classroom = Classroom.objects.get(code=request.data['code'])
+        # checks if the student is already in the classroom
+        if Enroll.objects.filter(classroom=classroom, studentUserID=request.user).exists():
+            return Response('Student is already in the classroom.', status.HTTP_403_FORBIDDEN)
         new_index = max(classroom.student_indexes) + 1
         classroom.student_indexes = classroom.student_indexes + [new_index]
         classroom.save()
         
-        enroll = Enroll(classroom=classroom, studentUserID=request.user, studentIndex=new_index)
+        enroll = Enroll(classroom=classroom, studentUserID=request.user, studentIndex=new_index, score=0)
         enroll.save()
 
         return Response(EnrollSerializer(enroll).data, status=status.HTTP_201_CREATED)
 
-    
     # need to retrieve and list all classrooms the student is in
     def list(self, request):
         queryset = Enroll.objects.filter(studentUserID=request.user)
@@ -173,26 +181,16 @@ class EnrollViewSet(viewsets.ViewSet):
         enrolls = Enroll.objects.get(classroom=kwargs['pk'])
         return Response(EnrollSerializer(enrolls).data)
 
-
-class StudentProfilePageViewSet(viewsets.ViewSet):
-    def list(self, request, **kwargs):
-        # need to obtain a list of all the classrooms they are part of
-        # then loop through and obtain every task that is part of those classrooms
-        verify_classroom_participant(kwargs['pk'], request.user)
-        enrolls = Enroll.objects.get(classroom=kwargs['pk'])
-
-        classCodes = []
-
-        for i in enrolls:
-            classCodes.append(enrolls[i]["classroom"])
-        
-        queryset = Task.objects.filter(classroom=classCodes)
-        print(queryset)
-
-        return Response(TaskSerializer(queryset, many=True).data)
-
+# TO EDIT TO SPECIFY CLASSROOM CODE
+# this fetches the ranking of the students in the classroom
 @api_view(['GET'])
 def Leaderboard(request):
-    profile_instances = StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)
-    profiles = StudentProfileSerializer(profile_instances, many=True).data
+    class_code = request.query_params['code']
+    classroom = Classroom.objects.get(code=class_code)
+    profile_instances = Enroll.objects.filter(classroom=classroom).order_by('-score')
+    profiles = StudentSerializer(profile_instances, many=True).data
     return Response(profiles)
+
+    # StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)
+    # profiles = StudentProfileSerializer(profile_instances, many=True).data
+    # return Response(profiles)

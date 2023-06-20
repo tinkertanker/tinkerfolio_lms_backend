@@ -36,7 +36,7 @@ class StudentRegister(viewsets.ViewSet):
         student_profile.save()
 
         enroll = Enroll(
-            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=new_index
+            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=new_index, score=0
         )
         enroll.save()
 
@@ -61,11 +61,12 @@ class StudentSignUp(viewsets.ViewSet):
 
         return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name', 'Last Name': 'last_name'})
 
+# not used
 class StudentJoinClass(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
         enroll = Enroll(
-            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=request.data['index']
+            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=request.data['index'], score=0
         )
         enroll.save()
 
@@ -98,11 +99,12 @@ class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+      
 
         tokens = serializer.validated_data
         response_data = {
             'access': str(tokens['access']),
-            'refresh': str(tokens['refresh']),
+            # 'refresh': str(tokens['refresh']),
         }
 
         return Response(response_data)
