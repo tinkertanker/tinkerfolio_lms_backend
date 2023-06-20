@@ -174,6 +174,23 @@ class EnrollViewSet(viewsets.ViewSet):
         return Response(EnrollSerializer(enrolls).data)
 
 
+class StudentProfilePageViewSet(viewsets.ViewSet):
+    def list(self, request, **kwargs):
+        # need to obtain a list of all the classrooms they are part of
+        # then loop through and obtain every task that is part of those classrooms
+        verify_classroom_participant(kwargs['pk'], request.user)
+        enrolls = Enroll.objects.get(classroom=kwargs['pk'])
+
+        classCodes = []
+
+        for i in enrolls:
+            classCodes.append(enrolls[i]["classroom"])
+        
+        queryset = Task.objects.filter(classroom=classCodes)
+        print(queryset)
+
+        return Response(TaskSerializer(queryset, many=True).data)
+
 @api_view(['GET'])
 def Leaderboard(request):
     profile_instances = StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)
