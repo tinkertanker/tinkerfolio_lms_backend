@@ -141,7 +141,6 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(status).data)
 
-# TO EDIT: SPECIFY CLASSROOM CODE
 # this fetches the resources files
 class StudentResourceViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
@@ -181,7 +180,14 @@ class EnrollViewSet(viewsets.ViewSet):
         enrolls = Enroll.objects.get(classroom=kwargs['pk'])
         return Response(EnrollSerializer(enrolls).data)
 
-# TO EDIT TO SPECIFY CLASSROOM CODE
+class StudentPortfolioViewSet(viewsets.ViewSet):
+    def list(self, request, **kwargs):
+        student = request.user
+        submissions = Submission.objects.filter(student=student)
+        serializer = StudentSubmissionSerializer(submissions, many=True)
+
+        return Response(serializer.data)
+    
 # this fetches the ranking of the students in the classroom
 @api_view(['GET'])
 def Leaderboard(request):
