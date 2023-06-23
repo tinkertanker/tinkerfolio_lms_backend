@@ -6,6 +6,7 @@ from asgiref.sync import async_to_sync
 
 from core.models import Task, Submission, Announcement
 from core.serializers import TaskSerializer, SubmissionSerializer, AnnouncementSerializer
+from student_core.models import Enroll
 
 @receiver(post_save, sender=Task)
 def send_task(sender, instance, **kwargs):
@@ -24,11 +25,13 @@ def send_submission(sender, instance, created, **kwargs):
 
     if instance.stars is not None:
         ## Update score
-        sp = instance.student.studentprofile
+        sp = Enroll.objects.get(studentUserID=instance.student, classroom=instance.task.classroom)
+
+        print("HELLO")
         sp.score += instance.stars
         sp.save()
 
-        ## Send comments to student
+        # Send comments to the student
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             'student_{}'.format(instance.student.id),

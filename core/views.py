@@ -54,8 +54,10 @@ class ClassroomViewSet(viewsets.ViewSet):
             student.set_password(str(i+1))
             student.save()
 
-            student_profile = StudentProfile(
-                student=student, assigned_class_code=code, index=i+1)
+            # student_profile = StudentProfile(
+            #     student=student, assigned_class_code=code, index=i+1)
+            # student_profile.save()
+            student_profile = Enroll(studentUserID=student, studentIndex=i+1, classroom=classroom)
             student_profile.save()
 
         return Response(ClassroomSerializer(classroom).data)
@@ -81,9 +83,11 @@ class ClassroomViewSet(viewsets.ViewSet):
         indexes_to_remove = list(
             set(classroom.student_indexes) - set(request.data['student_indexes']))
         for index in indexes_to_remove:
-            sp = StudentProfile.objects.get(
-                assigned_class_code=classroom.code, index=index)
-            sp.student.delete()
+            # sp = StudentProfile.objects.get(
+            #     assigned_class_code=classroom.code, index=index)
+            # sp.student.delete()
+            sp = Enroll.objects.get(studentIndex=index, classroom=classroom)
+            sp.delete()
 
         # Finds the number of indexes to add and automatically creates users
         indexes_to_add = list(
@@ -103,10 +107,11 @@ class ClassroomViewSet(viewsets.ViewSet):
                 student_name = ""
 
             # Creates an entry in the StudentProfile table
-            student_profile = StudentProfile(
-                student=student, assigned_class_code=classroom.code, index=index,
-                name=student_name
-            )
+            # student_profile = StudentProfile(
+            #     student=student, assigned_class_code=classroom.code, index=index,
+            #     name=student_name
+            # )
+            student_profile = Enroll(studentUserID=student, studentIndex=index, classroom=classroom, name=student_name)
             student_profile.save()
 
         classroom.student_indexes = request.data['student_indexes']
@@ -123,6 +128,27 @@ class ClassroomViewSet(viewsets.ViewSet):
 
         return Response("classroom deleted")
 
+class StudentViewSet(viewsets.ViewSet):
+    def list(self, request):
+        classroom = Classroom.objects.get(code=request.query_params['code'])
+        queryset = Enroll.objects.filter(classroom=classroom)
+        students = []
+        for enroll in queryset:
+            student = StudentSerializer(enroll).data
+            print(student['name'])
+            print(student['studentIndex'])
+            student['id'] = student['studentIndex']
+            students.append(student)
+        return Response(students)
+    def update(self, request, **kwargs):
+        verify_classroom_owner(request.data['code'], request.user)
+        classroom = Classroom.objects.get(code=request.data['code'])
+        profile = Enroll.objects.get(
+            classroom=classroom, studentIndex=request.data['index'])
+        profile.name = request.data['name']
+        profile.save()
+        return Response('done')
+    
 
 class StudentProfileViewSet(viewsets.ViewSet):
     '''

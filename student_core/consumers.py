@@ -2,6 +2,7 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from urllib.parse import parse_qs
 
 class StudentConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -25,7 +26,9 @@ class StudentConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_class_code(self):
-        return self.user.studentprofile.assigned_class_code
+        self.code = parse_qs(self.scope["query_string"].decode("utf8"))["code"][0]
+        return self.code
+        # return self.user.studentprofile.assigned_class_code
 
     async def disconnect(self, close_code):
         pass
