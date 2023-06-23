@@ -114,16 +114,7 @@ class MyUserPermissions(permissions.BasePermission):
             return True
         return request.user == obj
 
-# class StudentSubmissionStatusViewSet(viewsets.ModelViewSet):
-#     """
-#     A viewset for viewing and editing user instances.
-#     """
-#     serializer_class = SubmissionStatusSerializer
-#     queryset = SubmissionStatus.objects.all()
-#     permission_classes = (MyUserPermissions, )
-
 class StudentSubmissionStatusViewSet(viewsets.ViewSet):
-
     def create(self, request):
         substatus = SubmissionStatus(
             task=Task.objects.get(id=request.data['task_id']),
@@ -141,7 +132,6 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(status).data)
 
-# TO EDIT: SPECIFY CLASSROOM CODE
 # this fetches the resources files
 class StudentResourceViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
@@ -158,7 +148,9 @@ class EnrollViewSet(viewsets.ViewSet):
         # checks if the student is already in the classroom
         if Enroll.objects.filter(classroom=classroom, studentUserID=request.user).exists():
             return Response('Student is already in the classroom.', status.HTTP_403_FORBIDDEN)
-        new_index = max(classroom.student_indexes) + 1
+        present_students = Enroll.objects.filter(classroom=classroom)
+        num_of_students = len(present_students)
+        new_index = num_of_students + 1
         classroom.student_indexes = classroom.student_indexes + [new_index]
         classroom.save()
         
@@ -181,7 +173,6 @@ class EnrollViewSet(viewsets.ViewSet):
         enrolls = Enroll.objects.get(classroom=kwargs['pk'])
         return Response(EnrollSerializer(enrolls).data)
 
-# TO EDIT TO SPECIFY CLASSROOM CODE
 # this fetches the ranking of the students in the classroom
 @api_view(['GET'])
 def Leaderboard(request):
@@ -190,7 +181,3 @@ def Leaderboard(request):
     profile_instances = Enroll.objects.filter(classroom=classroom).order_by('-score')
     profiles = StudentSerializer(profile_instances, many=True).data
     return Response(profiles)
-
-    # StudentProfile.objects.filter(assigned_class_code=request.user.studentprofile.assigned_class_code)
-    # profiles = StudentProfileSerializer(profile_instances, many=True).data
-    # return Response(profiles)

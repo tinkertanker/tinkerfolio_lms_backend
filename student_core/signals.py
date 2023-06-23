@@ -21,13 +21,9 @@ def send_task(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Submission)
 def send_submission(sender, instance, created, **kwargs):
-    ## If teacher comments, sent them to student
-
     if instance.stars is not None:
-        ## Update score
+        ## Update score once teacher reviewed
         sp = Enroll.objects.get(studentUserID=instance.student, classroom=instance.task.classroom)
-
-        print("HELLO")
         sp.score += instance.stars
         sp.save()
 
@@ -41,7 +37,6 @@ def send_submission(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Announcement)
 def send_announcement(sender, instance, created, **kwargs):
     ## Send new announcements and updates to students
-
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         'student_{}'.format(instance.classroom.code),

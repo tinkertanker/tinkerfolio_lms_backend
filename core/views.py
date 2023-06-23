@@ -39,26 +39,23 @@ class ClassroomViewSet(viewsets.ViewSet):
         # Creates a new classroom code
         code = uuid.uuid4().hex[:6]
 
-        # Creates classroom, assigns the user who created the classroom as the teacher and generates classroom code.
-        # Also accepts input for name of class, and initalizes list of indexes for students
         classroom = Classroom(
-            teacher=request.user, code=code,
-            name=request.data['name'], student_indexes=[
-                i+1 for i in range(request.data['no_of_students'])]
+        teacher=request.user, code=code,
+        name=request.data['name'], student_indexes=[]
         )
         classroom.save()
 
-        for i in range(request.data['no_of_students']):
-            # Create User and StudentProfile for each student
-            student = User(username=code+'_'+str(i+1), user_type=1)
-            student.set_password(str(i+1))
-            student.save()
+        # for i in range(request.data['no_of_students']):
+        #     # Create User and StudentProfile for each student
+        #     student = User(username=code+'_'+str(i+1), user_type=1)
+        #     student.set_password(str(i+1))
+        #     student.save()
 
-            # student_profile = StudentProfile(
-            #     student=student, assigned_class_code=code, index=i+1)
-            # student_profile.save()
-            student_profile = Enroll(studentUserID=student, studentIndex=i+1, classroom=classroom)
-            student_profile.save()
+        #     # student_profile = StudentProfile(
+        #     #     student=student, assigned_class_code=code, index=i+1)
+        #     # student_profile.save()
+        #     student_profile = Enroll(studentUserID=student, studentIndex=i+1, classroom=classroom)
+        #     student_profile.save()
 
         return Response(ClassroomSerializer(classroom).data)
 
