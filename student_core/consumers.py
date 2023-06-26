@@ -7,7 +7,7 @@ from urllib.parse import parse_qs
 class StudentConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
-        if self.user.user_type != 1:
+        if self.user.user_type != 3:
             await self.close()
 
         ## Classroom group

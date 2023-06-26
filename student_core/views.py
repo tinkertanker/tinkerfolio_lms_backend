@@ -68,11 +68,14 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
 
         if 'image' in request.data:
             image = request.data['image']
+            print(image.name)
+            print(str(request.data['code']))
             class_code = request.data['code']
             filename = '{}_{}_{}.{}'.format(
                 class_code, request.data['task_id'],
                 request.user.id, image.name.split('.')[1]
             )
+            print(filename)
             sub.image.save(filename, ContentFile(image.read()))
 
         sub.save()
@@ -80,7 +83,7 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         return Response(SubmissionSerializer(sub).data)
 
     def update(self, request, **kwargs):
-        if request.user.user_type != 1:
+        if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
         sub = Submission.objects.get(id=int(kwargs['pk']))
