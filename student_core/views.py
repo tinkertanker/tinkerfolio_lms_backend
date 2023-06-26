@@ -176,6 +176,14 @@ class EnrollViewSet(viewsets.ViewSet):
         enrolls = Enroll.objects.get(classroom=kwargs['pk'])
         return Response(EnrollSerializer(enrolls).data)
 
+class StudentPortfolioViewSet(viewsets.ViewSet):
+    def list(self, request, **kwargs):
+        student = request.user
+        submissions = Submission.objects.filter(student=student)
+        serializer = StudentSubmissionSerializer(submissions, many=True)
+
+        return Response(serializer.data)
+    
 # this fetches the ranking of the students in the classroom
 @api_view(['GET'])
 def Leaderboard(request):

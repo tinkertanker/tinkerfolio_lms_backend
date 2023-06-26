@@ -45,6 +45,31 @@ class SubmissionStatusSerializer(serializers.ModelSerializer):
         model = SubmissionStatus
         fields = '__all__'
 
+class InputObjectField(serializers.Field):
+    def to_representation(self, value):
+        input_object = {}
+        input_object['image'] = value.image.url if value.image else None
+        input_object['text'] = value.text
+        return input_object
+    
+class StudentSubmissionSerializer(serializers.ModelSerializer):
+    taskName = serializers.CharField(source='task.name')
+    className = serializers.CharField(source='task.classroom.name')
+    inputObject = serializers.SerializerMethodField()
+    
+    def get_inputObject(self, submission):
+        # Determine the input object based on the existence of the image field
+        if submission.image:
+            # If image field exists, return the image file
+            return submission.image
+        else:
+            # If image field does not exist, return the text field
+            return submission.text
+
+    class Meta:
+        model = Submission
+        fields = ['taskName', 'className', 'inputObject']
+
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
