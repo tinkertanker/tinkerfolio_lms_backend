@@ -180,7 +180,8 @@ class StudentPortfolioViewSet(viewsets.ViewSet):
     def list(self, request, **kwargs):
         student = request.user
         submissions = Submission.objects.filter(student=student)
-        serializer = StudentSubmissionSerializer(submissions, many=True)
+        print(submissions)
+        serializer = SubmissionSerializer(submissions, many=True)
 
         return Response(serializer.data)
     
