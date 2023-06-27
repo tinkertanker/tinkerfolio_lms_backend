@@ -94,6 +94,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             'userType': user.user_type,
         }
 
+        print(response_data)
+
         return Response(response_data)
 
 class CustomTokenRefreshView(TokenRefreshView):
@@ -107,6 +109,8 @@ class CustomTokenRefreshView(TokenRefreshView):
             'access': str(tokens['access']),
             # 'refresh': str(tokens['refresh']),
         }
+
+        print(response_data)
 
         return Response(response_data)
 
