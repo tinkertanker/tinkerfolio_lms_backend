@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
 
 from accounts.models import User, StudentProfile
 from core.models import Classroom
@@ -85,7 +86,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         elif inputUserType == "student":
             inputUserCode = 3
         if user.user_type != inputUserCode:
-            return self.error_response('Invalid user type.')
+            raise AuthenticationFailed('Invalid user type.')
 
         tokens = serializer.validated_data
         response_data = {
