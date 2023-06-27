@@ -45,7 +45,8 @@ class StudentRegister(viewsets.ViewSet):
 class TeacherSignUp(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
-        teacher = User(username=request.data['username'], user_type=2, email=request.data['email'], first_name=request.data['first_name'], last_name=request.data['last_name'])
+
+        teacher = User(username=request.data['username'], user_type=2, email=request.data['email'], first_name=request.data['first_name'])
         teacher.set_password(request.data['password'])
         teacher.save()
 

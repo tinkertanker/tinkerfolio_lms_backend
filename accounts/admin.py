@@ -4,7 +4,7 @@ from .models import *
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
-    list_display=('username', 'email', 'first_name', 'last_name', 'is_staff', 'user_type')
+    list_display= [f.name for f in User._meta.fields]
     list_filter = ['user_type']
     search_fields = ['id', 'studentprofile__index', 'studentprofile__assigned_class_code', 'studentprofile__name']
 
