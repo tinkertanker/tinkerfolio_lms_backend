@@ -68,8 +68,6 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
 
         if 'image' in request.data:
             image = request.data['image']
-            print(image.name)
-            print(str(request.data['code']))
             class_code = request.data['code']
             filename = '{}_{}_{}.{}'.format(
                 class_code, request.data['task_id'],
@@ -180,7 +178,6 @@ class StudentPortfolioViewSet(viewsets.ViewSet):
     def list(self, request, **kwargs):
         student = request.user
         submissions = Submission.objects.filter(student=student)
-        print(submissions)
         serializer = SubmissionSerializer(submissions, many=True)
 
         return Response(serializer.data)

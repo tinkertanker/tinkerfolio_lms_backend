@@ -132,8 +132,6 @@ class StudentViewSet(viewsets.ViewSet):
         students = []
         for enroll in queryset:
             student = StudentSerializer(enroll).data
-            print(student['name'])
-            print(student['studentIndex'])
             student['id'] = student['studentIndex']
             students.append(student)
         return Response(students)
@@ -200,9 +198,6 @@ class TaskViewSet(viewsets.ViewSet):
         return Response(TaskSerializer(queryset, many=True).data)
 
     def create(self, request):
-        print(request.query_params)
-        print('bulk' in request.query_params)
-
         def add_task(task_data):
             # Obtains task data - code, name of task, task description, max number of stars
             task = Task(

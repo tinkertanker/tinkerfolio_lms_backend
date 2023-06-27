@@ -43,13 +43,6 @@ class TokenAuthMiddleware:
             #  Then token is valid, decode it
             decoded_data = jwt_decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             print(decoded_data)
-            # Will return a dictionary like -
-            # {
-            #     "token_type": "access",
-            #     "exp": 1568770772,
-            #     "jti": "5c15e80d65b04c20ad34d77b6703251b",
-            #     "user_id": 6
-            # }
 
             # Get the user using ID
             user = await get_user(decoded_data["user_id"])
