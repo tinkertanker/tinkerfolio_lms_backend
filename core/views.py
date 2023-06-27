@@ -45,18 +45,6 @@ class ClassroomViewSet(viewsets.ViewSet):
         )
         classroom.save()
 
-        # for i in range(request.data['no_of_students']):
-        #     # Create User and StudentProfile for each student
-        #     student = User(username=code+'_'+str(i+1), user_type=1)
-        #     student.set_password(str(i+1))
-        #     student.save()
-
-        #     # student_profile = StudentProfile(
-        #     #     student=student, assigned_class_code=code, index=i+1)
-        #     # student_profile.save()
-        #     student_profile = Enroll(studentUserID=student, studentIndex=i+1, classroom=classroom)
-        #     student_profile.save()
-
         return Response(ClassroomSerializer(classroom).data)
 
     def update(self, request, **kwargs):
@@ -80,9 +68,6 @@ class ClassroomViewSet(viewsets.ViewSet):
         indexes_to_remove = list(
             set(classroom.student_indexes) - set(request.data['student_indexes']))
         for index in indexes_to_remove:
-            # sp = StudentProfile.objects.get(
-            #     assigned_class_code=classroom.code, index=index)
-            # sp.student.delete()
             sp = Enroll.objects.get(studentIndex=index, classroom=classroom)
             sp.delete()
 
