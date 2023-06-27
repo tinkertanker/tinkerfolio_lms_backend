@@ -45,10 +45,6 @@ class SubmissionStatusSerializer(serializers.ModelSerializer):
         model = SubmissionStatus
         fields = '__all__'
 
-    class Meta:
-        model = Submission
-        fields = ['taskName', 'className', 'inputObject']
-
 class SubmissionSerializer(serializers.ModelSerializer):
     classroom_name = serializers.SerializerMethodField()
     task_name = serializers.SerializerMethodField()
