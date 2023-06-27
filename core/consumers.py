@@ -70,22 +70,6 @@ class TeacherConsumer(AsyncWebsocketConsumer):
     def get_submission(self, id):
         return Submission.objects.get(id=id)
 
-class StudentConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.user = self.scope['user']
-        self.code = parse_qs(self.scope["query_string"].decode("utf8"))["code"][0]
-
-        ## Permissions
-        if self.user.user_type != 3:
-            await self.close()
-
-        ## Classroom group
-        await self.channel_layer.group_add(
-            'student_{}'.format(self.code),
-            self.channel_name
-        )
-
-        await self.accept()
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
