@@ -9,6 +9,7 @@ from accounts.models import User, StudentProfile
 from core.models import Classroom
 from student_core.models import Enroll
 
+# OUTDATED
 class StudentRegister(viewsets.ViewSet):
     '''
     Allows a student to sign themselves up as a new student in the classroom
@@ -56,14 +57,26 @@ class TeacherSignUp(viewsets.ViewSet):
 
 class StudentSignUp(viewsets.ViewSet):
     permission_classes = [AllowAny]
+    
     def create(self, request):
-        student = User(username=request.data['username'], user_type=3, email=request.data['email'], first_name=request.data['first_name'])
-        student.set_password(request.data['password'])
+        username = request.data.get('username')
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        password = request.data.get('password')
+        
+        if User.objects.filter(username=username).exists():
+            return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'Email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        student = User(username=username, user_type=3, email=email, first_name=first_name)
+        student.set_password(password)
         student.save()
 
-        return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name'})
+        return Response({'Account': 'Student', 'Username': username, 'First Name': first_name})
 
-# not used
+# OUTDATED
 class StudentJoinClass(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
