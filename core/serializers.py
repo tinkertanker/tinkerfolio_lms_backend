@@ -33,7 +33,7 @@ class StudentSerializer(serializers.ModelSerializer):
         fields = ['studentUserID', 'studentIndex', 'score', 'name']
 
     def get_name(self, obj):
-        return f"{obj.studentUserID.first_name} {obj.studentUserID.last_name}"
+        return f"{obj.studentUserID.first_name} "
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:

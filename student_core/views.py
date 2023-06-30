@@ -38,7 +38,7 @@ class StudentInitialViewSet(viewsets.ViewSet):
        
         return Response({
             'profile': StudentSerializer(profile).data,
-            'name': request.user.first_name + ' ' + request.user.last_name,
+            'name': request.user.first_name,
             'classroom': ClassroomSerializer(classroom).data,
 
             'announcements': AnnouncementSerializer(announcements_queryset, many=True).data,

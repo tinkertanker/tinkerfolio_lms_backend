@@ -51,17 +51,17 @@ class TeacherSignUp(viewsets.ViewSet):
         teacher.set_password(request.data['password'])
         teacher.save()
 
-        return Response({'Account': 'Teacher','Username': request.data['username'], 'First Name': request.data['first_name'], 'First Name': request.data['last_name']})
+        return Response({'Account': 'Teacher','Username': request.data['username'], 'First Name': request.data['first_name']})
 
 
 class StudentSignUp(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
-        student = User(username=request.data['username'], user_type=3, email=request.data['email'], first_name=request.data['first_name'], last_name=request.data['last_name'])
+        student = User(username=request.data['username'], user_type=3, email=request.data['email'], first_name=request.data['first_name'])
         student.set_password(request.data['password'])
         student.save()
 
-        return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name', 'Last Name': 'last_name'})
+        return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name'})
 
 # not used
 class StudentJoinClass(viewsets.ViewSet):
