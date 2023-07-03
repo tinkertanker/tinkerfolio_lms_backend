@@ -64,15 +64,15 @@ class StudentSignUp(viewsets.ViewSet):
         return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name'})
 
 # not used
-class StudentJoinClass(viewsets.ViewSet):
-    permission_classes = [AllowAny]
-    def create(self, request):
-        enroll = Enroll(
-            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=request.data['index'], score=0
-        )
-        enroll.save()
+# class StudentJoinClass(viewsets.ViewSet):
+#     permission_classes = [AllowAny]
+#     def create(self, request):
+#         enroll = Enroll(
+#             studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=request.data['index'], score=0
+#         )
+#         enroll.save()
 
-        return Response({'Student Account': 'studentUserId', 'Classroom': 'classroom', 'Index': 'studentIndex'})
+#         return Response({'Student Account': 'studentUserId', 'Classroom': 'classroom', 'Index': 'studentIndex'})
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):

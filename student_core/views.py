@@ -6,9 +6,9 @@ from rest_framework import status
 from rest_framework import permissions
 from django.core.files.base import ContentFile
 
+from accounts.models import User
 from core.models import Classroom, Task
-from accounts.models import User, StudentProfile
-from student_core.models import Enroll
+from student_core.models import Enroll, StudentGroup
 from core.serializers import *
 
 from datetime import datetime
@@ -60,49 +60,100 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
     def create(self, request):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
+        
+        if request.data['is_group_submission']:
+            studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
+            student_indexes = studentGroup[0].member_indexes
+            print(student_indexes)
 
-        sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=request.user)
+            for i in student_indexes:
+                print(i)
+                sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=User.objects.get(id=i))
 
-        if 'text' in request.data:
-            sub.text = request.data['text']
+                if 'text' in request.data:
+                    sub.text = request.data['text']
 
-        if 'image' in request.data:
-            image = request.data['image']
-            class_code = request.data['code']
-            filename = '{}_{}_{}.{}'.format(
-                class_code, request.data['task_id'],
-                request.user.id, image.name.split('.')[1]
-            )
-            print(filename)
-            sub.image.save(filename, ContentFile(image.read()))
+                if 'image' in request.data:
+                    image = request.data['image']
+                    class_code = request.data['code']
+                    filename = '{}_{}_{}.{}'.format(
+                        class_code, request.data['task_id'],
+                        request.user.id, image.name.split('.')[1]
+                    )
+                    print(filename)
+                    sub.image.save(filename, ContentFile(image.read()))
 
-        sub.save()
+                sub.save()
+            
+        else:
+            sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=request.user)
+
+            if 'text' in request.data:
+                sub.text = request.data['text']
+
+            if 'image' in request.data:
+                image = request.data['image']
+                class_code = request.data['code']
+                filename = '{}_{}_{}.{}'.format(
+                    class_code, request.data['task_id'],
+                    request.user.id, image.name.split('.')[1]
+                )
+                print(filename)
+                sub.image.save(filename, ContentFile(image.read()))
+
+            sub.save()
 
         return Response(SubmissionSerializer(sub).data)
 
     def update(self, request, **kwargs):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
+        
+        if request.data['is_group_submission']:
+            studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
+            student_indexes = studentGroup[0].member_indexes
 
-        sub = Submission.objects.get(id=int(kwargs['pk']))
+            for i in student_indexes:
+                sub = Submission.objects.filter(student=User.objects.get(id=i), task=Task.objects.get(id=request.data['id']))
 
-        if sub.stars or sub.comments:
-            return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
+                if sub.stars or sub.comments:
+                    return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
 
-        if 'text' in request.data:
-            sub.text = request.data['text']
+                if 'text' in request.data:
+                    sub.text = request.data['text']
 
-        if 'image' in request.data:
-            image = request.data['image']
-            class_code = request.data['code']
-            filename = '{}_{}_{}.{}'.format(
-                class_code, request.data['task_id'],
-                request.user.id, image.name.split('.')[1]
-            )
-            sub.image.save(filename, ContentFile(image.read()))
+                if 'image' in request.data:
+                    image = request.data['image']
+                    class_code = request.data['code']
+                    filename = '{}_{}_{}.{}'.format(
+                        class_code, request.data['task_id'],
+                        request.user.id, image.name.split('.')[1]
+                    )
+                    sub.image.save(filename, ContentFile(image.read()))
 
-        sub.resubmitted_at = datetime.now()
-        sub.save()
+                sub.resubmitted_at = datetime.now()
+                sub.save()
+
+        else:
+            sub = Submission.objects.get(id=int(kwargs['pk']))
+
+            if sub.stars or sub.comments:
+                return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
+
+            if 'text' in request.data:
+                sub.text = request.data['text']
+
+            if 'image' in request.data:
+                image = request.data['image']
+                class_code = request.data['code']
+                filename = '{}_{}_{}.{}'.format(
+                    class_code, request.data['task_id'],
+                    request.user.id, image.name.split('.')[1]
+                )
+                sub.image.save(filename, ContentFile(image.read()))
+
+            sub.resubmitted_at = datetime.now()
+            sub.save()
 
         return Response(SubmissionSerializer(sub).data)
 
@@ -181,6 +232,40 @@ class StudentPortfolioViewSet(viewsets.ViewSet):
         serializer = SubmissionSerializer(submissions, many=True)
 
         return Response(serializer.data)
+    
+class StudentGroupViewSet(viewsets.ViewSet):
+    # Create a new group, with the group number set as the length of the group number list + 1
+    def create(self, request):
+        new_group_number = len(self.group_number) + 1
+
+        studentGroup = StudentGroup(
+            classroom = Classroom.objects.get(code=request.data['code']),
+            group_number = new_group_number,
+            member_indexes = [request.data['index']]
+        )
+        studentGroup.save()
+
+        return Response(studentGroup)
+    
+    # allows for adding or removing a student from the group
+    def update(self, request):
+        studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
+
+        is_add_new_student = request.data['is_add_new_student']
+
+        if is_add_new_student:
+            studentGroup.memeber_indexes.append(request.data['index'])
+        else: 
+            studentGroup.member_indexes.remove(request.data['index'])
+
+        studentGroup.save()
+        return Response(studentGroup)
+
+    # allows for deletion of group members
+    def delete(self, request):
+        studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
+        studentGroup.delete()
+        return Response("Group deleted")
     
 # this fetches the ranking of the students in the classroom
 @api_view(['GET'])

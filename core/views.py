@@ -6,7 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django.core.files.base import ContentFile
 
-from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource, StudentGroup
+from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource
 from accounts.models import User, StudentProfile
 from core.serializers import *
 
@@ -192,7 +192,7 @@ class TaskViewSet(viewsets.ViewSet):
                 name=task_data['name'],
                 description=task_data['description'],
                 max_stars=task_data['max_stars'],
-                is_group_task=task_data['is_group_task'],
+                is_group_task=True,
             )
 
             if 'display' in task_data:
@@ -468,36 +468,3 @@ class ResourceViewSet(viewsets.ViewSet):
 
         return Response(True)
 
-class StudentGroupViewSet(viewsets.ViewSet):
-    # Create a new group, with the group number set as the length of the group number list + 1
-    def create(self, request):
-        new_group_number = len(self.group_number) + 1
-
-        studentGroup = StudentGroup(
-            classroom = Classroom.objects.get(code=request.data['code']),
-            group_number = new_group_number,
-            member_indexes = [request.data['index']]
-        )
-        studentGroup.save()
-
-        return Response(studentGroup)
-    
-    # allows for adding or removing a student from the group
-    def update(self, request):
-        studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
-
-        is_add_new_student = request.data['is_add_new_student']
-
-        if is_add_new_student:
-            studentGroup.memeber_indexes.append(request.data['index'])
-        else: 
-            studentGroup.member_indexes.remove(request.data['index'])
-
-        studentGroup.save()
-        return Response(studentGroup)
-
-    # allows for deletion of group members
-    def delete(self, request):
-        studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
-        studentGroup.delete()
-        return Response("task deleted")
