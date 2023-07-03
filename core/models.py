@@ -17,6 +17,7 @@ class Classroom(models.Model):
     code = models.CharField(max_length=6)
     student_indexes = models.JSONField(default=list)
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
+    group_indexes = models.JSONField(default=list)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -45,6 +46,8 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(blank=True, null=True)
+
+    is_group_task = models.BooleanField(default=False)
 
 class SubmissionStatus(models.Model):
 
@@ -122,3 +125,18 @@ class Resource(models.Model):
     name = models.CharField(max_length=200)
     ## File Name Format: (Resource Section ID)_(Resource ID)_(Resource Name).(format)
     file = models.FileField(blank=True, null=True, default=None)
+
+class StudentGroup(models.Model):
+    # for student groups to work, you need the classroom code, the group number, 
+    # and the index number of the students
+    # uniquely identified by the classroom code and group number
+
+    class Meta:
+        constraints=[
+            models.UniqueConstraint(fields = ['classroom', 'group_number'], name = 'unique_identifier')
+        ]
+
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    group_number = models.PositiveSmallIntegerField()
+
+    member_indexes = models.JSONField(default=list)
