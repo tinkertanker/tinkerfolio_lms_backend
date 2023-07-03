@@ -14,8 +14,6 @@ from pathlib import Path
 from os import path
 import environ
 import os
-import dj_database_url
-
 
 env = environ.Env(
     DEBUG=(bool, False)
@@ -43,7 +41,6 @@ DEBUG = env('DEBUG')
 if DEBUG == False:
     ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
-ALLOWED_HOSTS = ['tinkerfolio-backend-755650dba345.herokuapp.com']
 # Application definition
 
 INSTALLED_APPS = [
@@ -98,10 +95,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-prod_db  =  dj_database_url.config(conn_max_age=500)
-DATABASES = {} 
-DATABASES['default'] = prod_db
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
+    }
+}
 
 
 # Password validation
@@ -180,9 +183,5 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-# Configure Django App for Heroku.
-import django_on_heroku
-django_on_heroku.settings(locals())
 
 # "hosts": [('127.0.0.1', 6379)],
