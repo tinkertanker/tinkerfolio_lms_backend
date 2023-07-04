@@ -40,8 +40,8 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 
 if DEBUG == False:
-    # ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,tinkerfolio-be.herokuapp.com").split(",")
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,tinkerfolio-be-6154aa9b3724.herokuapp.com").split(",")
+    # ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
