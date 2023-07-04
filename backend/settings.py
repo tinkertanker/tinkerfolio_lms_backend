@@ -16,7 +16,6 @@ import environ
 import os
 import dj_database_url
 
-
 env = environ.Env(
     DEBUG=(bool, False)
 )
@@ -41,9 +40,8 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 
 if DEBUG == False:
-    ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-
-ALLOWED_HOSTS = ['tinkerfolio-backend-755650dba345.herokuapp.com']
+    # ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,tinkerfolio-be.herokuapp.com").split(",")
+    ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
@@ -98,10 +96,19 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-prod_db  =  dj_database_url.config(conn_max_age=500)
-DATABASES = {} 
-DATABASES['default'] = prod_db
+db_from_env = dj_database_url.config(conn_max_age=600)
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
+    }
+}
+DATABASES['default'].update(db_from_env)
 
 
 # Password validation
@@ -161,7 +168,13 @@ STATIC_ROOT = path.join(BASE_DIR,'assets')
 STATICFILES_DIRS=[
     os.path.join(BASE_DIR,'static')
 ]
+# STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 # STATIC_ROOT = path.join(PROJECT_ROOT,'static-root')
 # STATIC_URL = '/static/'
