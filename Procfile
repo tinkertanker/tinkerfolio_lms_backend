@@ -1,2 +1,3 @@
-web: daphne backend.asgi --port $PORT --bind 0.0.0.0 -v2
-worker: python manage.py runworker -v2
+web: gunicorn backend.wsgi --bind 0.0.0.0:$PORT
+websocket: daphne -b 0.0.0.0 -p $PORT backend.asgi:application
+
