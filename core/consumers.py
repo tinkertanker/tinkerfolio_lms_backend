@@ -8,24 +8,31 @@ from core.models import Classroom, Submission
 from core.serializers import SubmissionSerializer
 
 class TeacherConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.user = self.scope['user']
-        self.code = parse_qs(self.scope["query_string"].decode("utf8"))["code"][0]
+    async def websocket_connect(self, event):
+        try:
+            self.user = self.scope['user']
+            self.code = self.scope['url_route']['kwargs']['token']
+            print(self.code)
+            print(self.user)
+            ## Permissions
+            if self.user.user_type != 2:
+                raise ValueError('Invalid user type')
+            
+            verified = await self.classroom_belongs_to_user()
+            if not verified:
+                raise ValueError('Classroom does not belong to user')
 
-        ## Permissions
-        if self.user.user_type != 2:
+            ## Classroom group
+            await self.channel_layer.group_add(
+                'teacher_{}'.format(self.code),
+                self.channel_name
+            )
+            
+            await self.accept()
+        except Exception as e:
+            # Print the error message
+            print('Error:', str(e))
             await self.close()
-        verified = await self.classroom_belongs_to_user()
-        if not verified:
-            await self.close()
-
-        ## Classroom group
-        await self.channel_layer.group_add(
-            'teacher_{}'.format(self.code),
-            self.channel_name
-        )
-
-        await self.accept()
 
     async def disconnect(self, close_code):
         pass
