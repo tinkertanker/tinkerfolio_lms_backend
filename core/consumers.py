@@ -17,7 +17,7 @@ class TeacherConsumer(AsyncWebsocketConsumer):
             await self.close()
         verified = await self.classroom_belongs_to_user()
         if not verified:
-            await self.close()
+                        await self.close()
 
         ## Classroom group
         await self.channel_layer.group_add(
