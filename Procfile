@@ -1,3 +1,2 @@
-web: gunicorn backend.wsgi --bind 0.0.0.0:$PORT
-websocket: daphne -b 0.0.0.0 -p $PORT backend.asgi:application
-
+release: python manage.py migrate
+web: daphne backend.asgi:application --port $PORT --bind 0.0.0.0 -v2
