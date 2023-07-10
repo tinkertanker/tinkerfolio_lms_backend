@@ -191,8 +191,8 @@ class TaskViewSet(viewsets.ViewSet):
                 classroom=Classroom.objects.get(code=task_data['code']),
                 name=task_data['name'],
                 description=task_data['description'],
-                max_stars=task_data['max_stars'],
-                is_group_task=True,
+                max_stars=5,
+                # is_group_task=task_data['is_group_task'],
             )
 
             if 'display' in task_data:
@@ -200,6 +200,7 @@ class TaskViewSet(viewsets.ViewSet):
                 task.display = task_data['display']
                 if task_data['display'] == 1:
                     task.published_at = timezone.now()
+                    
             else:
                 # If no display value is present, task is published by default
                 task.published_at = timezone.now()
