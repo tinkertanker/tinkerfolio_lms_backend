@@ -1,16 +1,19 @@
-[Classroom](id*,name,teacher_id,student_indexes,code,status,created_at);
-[Tasks](id*,description,name,status,max_stars,updated_at,classroom_id,created_at,display,published_at);
-[Submission](id*,image,stars,comments,text,student_id,task_id,created_at,resubmitted_at);
-[SubmissionStatus](id*,task_id,student_id,status);
-[Announcement](id*,name,created_at,updated_at,description,classroom_id);
-[ResourceSection](id*,created_at,updated_at,classroom_id,name);
-[Resources](id*,created_at,updated_at,name,file,section_id);
+/*accounts/models.py*/
 [User](id*,password,is_superuser,last_login,username,is_staff,first_name,last_name,email,is_active,date_joined,user_type);
-[StudentProfile](id*,name,score,created_by_student,index,student_id,assigned_class_code);
-[UserGroups](id*,user_id,permission_id);
-[UserUserPermissions](id*,user_id,permission_id);
 
-<Enrolls>(id*, user_id, classroom_id, index);
+/*core/models.py*/
+[Classroom](id*,teacher,name,code,student_indexes,status,group_indexes,created_at);
+[Tasks](id*,classroom,name,description,status,display,max_stars,created_at,updated_at,published_at,is_group_task);
+[SubmissionStatus](id*,task,student,status);
+[Submission](id*,task,student,image,text,stars,comments,created_at,resubmitted_at);
+[Announcement](id*,classroom,created_at,updated_at,name,description);
+[ResourceSection](id*,classroom,created_at,updated_at,name);
+[Resources](id*,section,created_at,updated_at,name,file);
+
+/*student_core/models.py*/
+[StudentGroup](id*, classroom, group_number, member_indexes);
+
+<Enrolls>(id*, student_user_id,classroom,studentIndex,score);
 <Releases>();
 <Have>();
 <Announces>();
@@ -18,8 +21,7 @@
 <Contains>();
 <Has>();
 <BelongsTo>();
-<BelongTo>();
-<Contain>();
+<Joins>();
 
 Classroom --- Releases;
 Tasks --- Releases;
@@ -27,18 +29,17 @@ Tasks --- Have;
 Submission --- Have;
 Submission --- Contains;
 SubmissionStatus --- Contains;
+
 Classroom --- Announces;
 Announcement --- Announces;
 ResourceSection --- Publishes;
 Classroom --- Publishes;
 ResourceSection --- Has;
 Resources --- Has;
+
 Classroom --- BelongsTo;
 User --- BelongsTo;
-User --- {StudentProfile};
-User --- BelongTo;
-UserGroups --- BelongTo;
-UserGroups --- Contain;
-UserUserPermissions --- Contain;
-StudentProfile --- Enrolls;
+User --- Enrolls;
 Classroom --- Enrolls;
+User --- Joins;
+StudentGroup --- Joins;
