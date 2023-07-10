@@ -78,6 +78,14 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
 
         sub.save()
 
+        # remove from submission status if exists
+        substatus = SubmissionStatus.objects.filter(task=sub.task, student=request.user).first()
+        if substatus:
+            substatus.delete()
+
+        substatus = SubmissionStatus(task=sub.task, student=request.user)
+        substatus.save()
+
         return Response(SubmissionSerializer(sub).data)
 
     def update(self, request, **kwargs):
