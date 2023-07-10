@@ -59,6 +59,13 @@ class StudentSignUp(viewsets.ViewSet):
     def create(self, request):
         student = User(username=request.data['username'], user_type=3, email=request.data['email'], first_name=request.data['first_name'])
         student.set_password(request.data['password'])
+
+        if User.objects.filter(username=request.data['username']).exists():
+            return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email=request.data['email']).exists():
+            return Response({'error': 'Email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         student.save()
 
         return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name'})
