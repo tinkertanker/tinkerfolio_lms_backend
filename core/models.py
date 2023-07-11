@@ -45,6 +45,7 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     published_at = models.DateTimeField(blank=True, null=True)
+    is_group = models.BooleanField(default=False)
 
 class SubmissionStatus(models.Model):
 
@@ -66,6 +67,15 @@ class SubmissionStatus(models.Model):
 
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=0)
 
+class GroupSubmission(models.Model):
+    group_name = models.CharField(max_length=200)
+    submitting_student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submitted_group_submissions')
+    associated_students = models.ManyToManyField(User, related_name='associated_group_submissions')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Submitting Student: {self.submitting_student.username}; Task: {self.task.name}'
+    
 class Submission(models.Model):
 
     def __str__(self):
@@ -83,6 +93,7 @@ class Submission(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     resubmitted_at = models.DateTimeField(blank=True, null=True)
+    group_submission = models.ForeignKey(GroupSubmission, on_delete=models.CASCADE, null=True, blank=True)
 
 class Announcement(models.Model):
 
