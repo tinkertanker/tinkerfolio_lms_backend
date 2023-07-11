@@ -54,8 +54,8 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
-        team_students_id = request.data['team_students']
-        team_students = [StudentProfile.objects.get(id=student_id) for student_id in team_students_id]
+        # list of students in the team
+        team_students = request.data["team_students"]
 
         team_sub = GroupSubmission(task=Task.objects.get(id=request.data['task_id']), group_name=request.data['group'], associated_students=team_students, submitting_student=request.user)
         team_sub.save()
