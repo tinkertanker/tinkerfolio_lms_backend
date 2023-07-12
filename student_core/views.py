@@ -56,15 +56,13 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
 
         # list of students in the team
         team_students_names = request.data["team_students"]
-
-        team_students = Enroll.objects.filter(
-            studentUserID__first_name__in=team_students_names,
-        )
+        team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
 
         team_sub = GroupSubmission(task=Task.objects.get(id=request.data['task_id']), group_name=request.data['group'], submitting_student=request.user)
+        team_sub.save()  # Save the instance to assign an id
+
         team_sub.associated_students.set(team_students)
-        
-        team_sub.save()
+        team_sub.save()  # Save again to update the many-to-many relationship
 
         for student in team_students:
             sub = Submission(task=team_sub.task, student=student.studentUserID)
