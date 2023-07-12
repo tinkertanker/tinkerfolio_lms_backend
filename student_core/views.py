@@ -56,6 +56,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
 
         # list of students in the team
         team_students_names = request.data["team_students"]
+        print(team_students_names)
         team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
 
         team_sub = GroupSubmission(task=Task.objects.get(id=request.data['task_id']), group_name=request.data['group'], submitting_student=request.user)
@@ -97,6 +98,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
         team_students_names = request.data['team_students']
+        print(team_students_names)
         team_students = Enroll.objects.filter(
             studentUserID__first_name__in=team_students_names,
         )
@@ -220,6 +222,7 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 class GroupSubmissionStatusViewSet(viewsets.ViewSet):
     def create(self, request):
         team_students_names = request.data['team_students']
+        print(team_students_names)
         team_students = Enroll.objects.filter(
             studentUserID__first_name__in=team_students_names,
         )
