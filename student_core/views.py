@@ -229,7 +229,7 @@ class GroupSubmissionStatusViewSet(viewsets.ViewSet):
             studentUserID__first_name__in=team_students_names,
         )
 
-        task = Task.objects.get(id=request.data['task_id']),
+        task = Task.objects.get(id=request.data['task_id'])
 
         for student in team_students:
             substatus = SubmissionStatus(
