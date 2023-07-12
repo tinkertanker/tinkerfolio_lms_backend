@@ -92,7 +92,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
             substatus = SubmissionStatus(task=sub.task, student=student.studentUserID)
             substatus.save()
 
-        # return Response(GroupSubmissionSerializer(team_sub).data)
+        return Response("Success creating group", status.HTTP_201_CREATED)
 
     def update(self, request, **kwargs):
         if request.user.user_type != 3:
@@ -127,7 +127,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
             sub.resubmitted_at = datetime.now()
             sub.save()
 
-        # return Response(GroupSubmissionSerializer(team_sub).data)
+        return Response("Success updating group", status.HTTP_201_CREATED)
 
 class StudentSubmissionViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
@@ -232,24 +232,20 @@ class GroupSubmissionStatusViewSet(viewsets.ViewSet):
         task = Task.objects.get(id=request.data['task_id'])
 
         for student in team_students:
-            substatus = SubmissionStatus(
-                task=task, student=student.studentUserID,
-                status=request.data['status']
-            )
-            substatus.save()
+            # if exists update
+            if SubmissionStatus.objects.filter(task=task, student=student.studentUserID).exists():
+                substatus = SubmissionStatus.objects.get(task=task, student=student.studentUserID)
+                substatus.status = request.data['status']
+                substatus.save()
+            else:
+                substatus = SubmissionStatus(
+                    task=task, student=student.studentUserID,
+                    status=request.data['status']
+                )
+                substatus.save()
 
         return Response({'message': 'Group submission status updated.'})
 
-    # def update(self, request, **kwargs):
-    #     group_submission = Submission.objects.get(pk=int(kwargs['pk']))
-    #     team_students = group_submission.associated_students.all()
-
-    #     for student in team_students:
-    #         submission_status = SubmissionStatus.objects.get(task=group_submission.task, student=student)
-    #         submission_status.status = request.data['status']
-    #         submission_status.save()
-
-        # return Response({'message': 'Group submission status updated.'})
     
 # this fetches the resources files
 class StudentResourceViewSet(viewsets.ViewSet):
