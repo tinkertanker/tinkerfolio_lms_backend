@@ -55,13 +55,19 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
         # list of students in the team
-        team_students = request.data["team_students"]
+        team_students_names = request.data["team_students"]
 
-        team_sub = GroupSubmission(task=Task.objects.get(id=request.data['task_id']), group_name=request.data['group'], associated_students=team_students, submitting_student=request.user)
+        team_students = Enroll.objects.filter(
+            studentUserID__first_name__in=team_students_names,
+        )
+
+        team_sub = GroupSubmission(task=Task.objects.get(id=request.data['task_id']), group_name=request.data['group'], submitting_student=request.user)
+        team_sub.associated_students.set(team_students)
+        
         team_sub.save()
 
         for student in team_students:
-            sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=student)
+            sub = Submission(task=team_sub.task, student=student.studentUserID)
 
             if 'text' in request.data:
                 sub.text = request.data['text']
@@ -80,11 +86,11 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
 
         # remove from submission status if exists
         for student in team_students:
-            substatus = SubmissionStatus.objects.filter(task=team_sub.task, student=student).first()
+            substatus = SubmissionStatus.objects.filter(task=team_sub.task, student=student.studentUserID).first()
             if substatus:
                 substatus.delete()
 
-            substatus = SubmissionStatus(task=sub.task, student=request.user)
+            substatus = SubmissionStatus(task=sub.task, student=student.studentUserID)
             substatus.save()
 
         return Response(GroupSubmissionSerializer(team_sub).data)
@@ -92,12 +98,15 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
     def update(self, request, **kwargs):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
-        team_students_id = request.data['team_students']
-        team_students = [StudentProfile.objects.get(id=student_id) for student_id in team_students_id]
+        team_students_names = request.data['team_students']
+        team_students = Enroll.objects.filter(
+            studentUserID__first_name__in=team_students_names,
+        )
         team_sub = GroupSubmission.objects.get(id=int(kwargs['pk']))
+       
 
         for student in team_students:
-            sub = Submission.objects.get(task=Task.objects.get(id=request.data['task_id']), student=student)
+            sub = Submission.objects.get(task=team_sub.task, student=student.studentUserID)
             if sub.stars or sub.comments:
                 return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
 
@@ -210,6 +219,35 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(status).data)
 
+class GroupSubmissionStatusViewSet(viewsets.ViewSet):
+    def create(self, request):
+        team_students_names = request.data['team_students']
+        team_students = Enroll.objects.filter(
+            studentUserID__first_name__in=team_students_names,
+        )
+
+        task = Task.objects.get(id=request.data['task_id']),
+
+        for student in team_students:
+            substatus = SubmissionStatus(
+                task=task, student=student.studentUserID,
+                status=request.data['status']
+            )
+            substatus.save()
+
+        return Response({'message': 'Group submission status updated.'})
+
+    def update(self, request, **kwargs):
+        group_submission = GroupSubmission.objects.get(pk=int(kwargs['pk']))
+        team_students = group_submission.associated_students.all()
+
+        for student in team_students:
+            submission_status = SubmissionStatus.objects.get(task=group_submission.task, student=student)
+            submission_status.status = request.data['status']
+            submission_status.save()
+
+        return Response({'message': 'Group submission status updated.'})
+    
 # this fetches the resources files
 class StudentResourceViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):

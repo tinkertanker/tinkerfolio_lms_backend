@@ -38,7 +38,8 @@ class StudentSerializer(serializers.ModelSerializer):
 class GroupSubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupSubmission
-        fields = '__all__'
+        fields = '__all__'    
+
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
