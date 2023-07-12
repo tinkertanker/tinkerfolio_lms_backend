@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import Classroom, GroupSubmission, Task, Submission, SubmissionStatus, Announcement, ResourceSection, Resource
+from core.models import Classroom, Task, Submission, SubmissionStatus, Announcement, ResourceSection, Resource
 from accounts.models import StudentProfile
 from student_core.models import Enroll
 
@@ -35,10 +35,10 @@ class StudentSerializer(serializers.ModelSerializer):
     def get_name(self, obj):
         return f"{obj.studentUserID.first_name} "
 
-class GroupSubmissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GroupSubmission
-        fields = '__all__'    
+# class GroupSubmissionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = GroupSubmission
+#         fields = '__all__'    
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:

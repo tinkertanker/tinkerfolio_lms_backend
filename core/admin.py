@@ -21,9 +21,9 @@ class SubmissionAdmin(admin.ModelAdmin):
 class AnnouncementAdmin(admin.ModelAdmin):
     search_fields = ['id', 'name', 'classroom__name']
 
-@admin.register(GroupSubmission)
-class GroupSubmissionAdmin(admin.ModelAdmin):
-    search_fields = ['group_name', 'task', 'id']
+# @admin.register(GroupSubmission)
+# class GroupSubmissionAdmin(admin.ModelAdmin):
+#     search_fields = ['group_name', 'task', 'id']
 
 @admin.register(ResourceSection)
 class ResourceSectionAdmin(admin.ModelAdmin):
