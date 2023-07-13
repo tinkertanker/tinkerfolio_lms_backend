@@ -59,6 +59,17 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
         print(team_students_names)
         team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
         print(team_students)
+        for student in team_students:
+            print(student.studentUserID.first_name)
+        print(len(team_students))
+
+        print("Test2")
+
+        users = User.objects.all()
+
+        for user in users:
+            print(user.first_name)
+        
         task=Task.objects.get(id=request.data['task_id'])
         print(task)
   
