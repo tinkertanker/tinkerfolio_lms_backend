@@ -131,7 +131,6 @@ class StudentViewSet(viewsets.ViewSet):
         profile.save()
         return Response('done')
     
-
 class StudentProfileViewSet(viewsets.ViewSet):
     '''
     Relates to student profile management, accessible only by teachers or admins, has 2 methods:
@@ -160,7 +159,6 @@ class StudentProfileViewSet(viewsets.ViewSet):
         profile.name = request.data['name']
         profile.save()
         return Response('done')
-
 
 class TaskViewSet(viewsets.ViewSet):
     '''
@@ -250,7 +248,6 @@ class TaskViewSet(viewsets.ViewSet):
 
         return Response("task deleted")
 
-
 class SubmissionViewSet(viewsets.ViewSet):
     '''
     Relates to all submissions, accessible by teachers and admins, has 2 methods:
@@ -302,7 +299,6 @@ class SubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(statuses, many=True).data)
 
-
 class AnnouncementViewSet(viewsets.ViewSet):
     '''
     Relates to announcements, accessible by teachers and admins, has 4 methods:
@@ -349,7 +345,6 @@ class AnnouncementViewSet(viewsets.ViewSet):
         announcement.delete()
 
         return Response("announcement deleted")
-
 
 class ResourceSectionViewSet(viewsets.ViewSet):
     # I think this displays all the information relating to resources in the dashboard?
@@ -422,7 +417,6 @@ class ResourceSectionViewSet(viewsets.ViewSet):
 
         return Response(True)
 
-
 class ResourceViewSet(viewsets.ViewSet):
     # And this one relates to displaying an individual resource
     '''
@@ -467,4 +461,3 @@ class ResourceViewSet(viewsets.ViewSet):
         res.delete()
 
         return Response(True)
-
