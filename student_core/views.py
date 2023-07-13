@@ -55,21 +55,15 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
         print("Test")
         # list of students in the team
-        team_students_names = request.data["team_students"]
+        team_students_names = request.data["team_students"].map(lambda x: x.strip())
         print(team_students_names)
-        team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
+        team_students = User.objects.filter(first_name__in=team_students_names)
         print(team_students)
         for student in team_students:
-            print(student.studentUserID.first_name)
-        print(len(team_students))
+            print(student.first_name)
 
         print("Test2")
 
-        users = User.objects.all()
-
-        for user in users:
-            print(user.first_name)
-        
         task=Task.objects.get(id=request.data['task_id'])
         print(task)
   
@@ -88,7 +82,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
                 )
                 print(filename)
                 sub.image.save(filename, ContentFile(image.read()))
-
+            print(sub)
             sub.save()
 
         # remove from submission status if exists
