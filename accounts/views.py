@@ -47,8 +47,15 @@ class TeacherSignUp(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
 
+        if User.objects.filter(username=request.data['username']).exists():
+            return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email=request.data['email']).exists():
+            return Response({'error': 'Email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
         teacher = User(username=request.data['username'], user_type=2, email=request.data['email'], first_name=request.data['first_name'])
         teacher.set_password(request.data['password'])
+
         teacher.save()
 
         return Response({'Account': 'Teacher','Username': request.data['username'], 'First Name': request.data['first_name']})
@@ -57,14 +64,15 @@ class TeacherSignUp(viewsets.ViewSet):
 class StudentSignUp(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
-        student = User(username=request.data['username'], user_type=3, email=request.data['email'], first_name=request.data['first_name'])
-        student.set_password(request.data['password'])
 
         if User.objects.filter(username=request.data['username']).exists():
             return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
 
         if User.objects.filter(email=request.data['email']).exists():
             return Response({'error': 'Email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        student = User(username=request.data['username'], user_type=1, email=request.data['email'], first_name=request.data['first_name'])
+        student.set_password(request.data['password'])
         
         student.save()
 
