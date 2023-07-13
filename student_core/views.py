@@ -53,12 +53,14 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
     def create(self, request):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
-
+        print("Test")
         # list of students in the team
         team_students_names = request.data["team_students"]
         print(team_students_names)
         team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
+        print(team_students)
         task=Task.objects.get(id=request.data['task_id'])
+        print(task)
   
         for student in team_students:
             sub = Submission(task=task, student=student.studentUserID)
@@ -100,7 +102,6 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
         
         team_sub = Submission.objects.get(id=int(kwargs['pk']))
        
-
         for student in team_students:
             sub = Submission.objects.get(task=team_sub.task, student=student.studentUserID)
             if sub.stars or sub.comments:
