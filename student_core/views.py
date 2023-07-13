@@ -59,12 +59,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
         print(team_students_names)
         team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
         task=Task.objects.get(id=request.data['task_id'])
-        # team_sub = GroupSubmission(task=Task.objects.get(id=request.data['task_id']), group_name=request.data['group'], submitting_student=request.user)
-        # team_sub.save()  # Save the instance to assign an id
-
-        # team_sub.associated_students.set(team_students)
-        # team_sub.save()  # Save again to update the many-to-many relationship
-
+  
         for student in team_students:
             sub = Submission(task=task, student=student.studentUserID)
 
@@ -76,7 +71,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
                 class_code = request.data['code']
                 filename = '{}_{}_{}.{}'.format(
                     class_code, request.data['task_id'],
-                    request.data['group'], image.name.split('.')[1]
+                    image.name.split('.')[1]
                 )
                 print(filename)
                 sub.image.save(filename, ContentFile(image.read()))
@@ -103,7 +98,6 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
             studentUserID__first_name__in=team_students_names,
         )
         
-        # print(team_students)
         team_sub = Submission.objects.get(id=int(kwargs['pk']))
        
 
