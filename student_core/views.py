@@ -6,9 +6,9 @@ from rest_framework import status
 from rest_framework import permissions
 from django.core.files.base import ContentFile
 
-from accounts.models import User
-from core.models import Classroom, Task
-from student_core.models import Enroll, StudentGroup
+from core.models import Classroom, GroupSubmission, Task
+from accounts.models import User, StudentProfile
+from student_core.models import Enroll
 from core.serializers import *
 
 from datetime import datetime
@@ -48,6 +48,75 @@ class StudentInitialViewSet(viewsets.ViewSet):
             'submission_statuses': [SubmissionStatusSerializer(substatus).data for substatus in submission_statuses_queryset if substatus != None],
             'submissions': [SubmissionSerializer(sub).data for sub in submissions_queryset if sub != None]
         })
+
+class GroupSubmissionViewSet(viewsets.ViewSet):
+    def create(self, request):
+        if request.user.user_type != 3:
+            return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
+
+        team_students_id = request.data['team_students']
+        team_students = [StudentProfile.objects.get(id=student_id) for student_id in team_students_id]
+
+        team_sub = GroupSubmission(task=Task.objects.get(id=request.data['task_id']), group_name=request.data['group'], associated_students=team_students, submitting_student=request.user)
+        team_sub.save()
+
+        for student in team_students:
+            sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=student)
+
+            if 'text' in request.data:
+                sub.text = request.data['text']
+
+            if 'image' in request.data:
+                image = request.data['image']
+                class_code = request.data['code']
+                filename = '{}_{}_{}.{}'.format(
+                    class_code, request.data['task_id'],
+                    request.data['group'], image.name.split('.')[1]
+                )
+                print(filename)
+                sub.image.save(filename, ContentFile(image.read()))
+
+            sub.save()
+
+        # remove from submission status if exists
+        for student in team_students:
+            substatus = SubmissionStatus.objects.filter(task=team_sub.task, student=student).first()
+            if substatus:
+                substatus.delete()
+
+            substatus = SubmissionStatus(task=sub.task, student=request.user)
+            substatus.save()
+
+        return Response(GroupSubmissionSerializer(team_sub).data)
+
+    def update(self, request, **kwargs):
+        if request.user.user_type != 3:
+            return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
+        team_students_id = request.data['team_students']
+        team_students = [StudentProfile.objects.get(id=student_id) for student_id in team_students_id]
+        team_sub = GroupSubmission.objects.get(id=int(kwargs['pk']))
+
+        for student in team_students:
+            sub = Submission.objects.get(task=Task.objects.get(id=request.data['task_id']), student=student)
+            if sub.stars or sub.comments:
+                return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
+
+            if 'text' in request.data:
+                sub.text = request.data['text']
+
+            if 'image' in request.data:
+                image = request.data['image']
+                class_code = request.data['code']
+                filename = '{}_{}_{}.{}'.format(
+                    class_code, request.data['task_id'],
+                    request.user.id, image.name.split('.')[1]
+                )
+                sub.image.save(filename, ContentFile(image.read()))
+
+            sub.resubmitted_at = datetime.now()
+            sub.save()
+
+        return Response(GroupSubmissionSerializer(team_sub).data)
 
 class StudentSubmissionViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
@@ -102,6 +171,14 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
                 sub.image.save(filename, ContentFile(image.read()))
 
             sub.save()
+
+        # remove from submission status if exists
+        substatus = SubmissionStatus.objects.filter(task=sub.task, student=request.user).first()
+        if substatus:
+            substatus.delete()
+
+        substatus = SubmissionStatus(task=sub.task, student=request.user)
+        substatus.save()
 
         return Response(SubmissionSerializer(sub).data)
 

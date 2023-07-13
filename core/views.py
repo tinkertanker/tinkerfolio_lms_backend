@@ -6,7 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django.core.files.base import ContentFile
 
-from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource
+from core.models import Classroom, GroupSubmission, Task, Submission, Announcement, ResourceSection, Resource
 from accounts.models import User, StudentProfile
 from core.serializers import *
 
@@ -192,7 +192,7 @@ class TaskViewSet(viewsets.ViewSet):
                 name=task_data['name'],
                 description=task_data['description'],
                 max_stars=5,
-                # is_group_task=task_data['is_group_task'],
+                is_group=task_data['isGroupSubmission']
             )
 
             if 'display' in task_data:
@@ -285,7 +285,6 @@ class SubmissionViewSet(viewsets.ViewSet):
             sub.save()
 
         return Response(SubmissionSerializer(sub).data)
-
 
 class SubmissionStatusViewSet(viewsets.ViewSet):
     '''
