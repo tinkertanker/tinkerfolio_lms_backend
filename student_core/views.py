@@ -82,7 +82,6 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
                 )
                 print(filename)
                 sub.image.save(filename, ContentFile(image.read()))
-            print(sub)
             sub.save()
 
         # remove from submission status if exists
