@@ -54,7 +54,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         if inputUserType == "teacher":
             inputUserCode = 2
         elif inputUserType == "student":
-            inputUserCode = 3
+            inputUserCode = 1
         if user.user_type != inputUserCode:
             raise AuthenticationFailed('Invalid user type.')
 
