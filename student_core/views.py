@@ -72,6 +72,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
                 class_code = request.data['code']
                 filename = '{}_{}_{}.{}'.format(
                     class_code, request.data['task_id'],
+                    student.id,
                     image.name.split('.')[1]
                 )
                 print(filename)
@@ -112,7 +113,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
                 class_code = request.data['code']
                 filename = '{}_{}_{}.{}'.format(
                     class_code, request.data['task_id'],
-                    request.user.id, image.name.split('.')[1]
+                    student.id, image.name.split('.')[1]
                 )
                 sub.image.save(filename, ContentFile(image.read()))
 
@@ -120,6 +121,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
             sub.save()
 
         return Response("Success updating group", status.HTTP_201_CREATED)
+        
 class StudentSubmissionViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
         sub = Submission.objects.get(id=int(kwargs['pk']))
