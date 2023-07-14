@@ -216,8 +216,8 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 
 class GroupSubmissionStatusViewSet(viewsets.ViewSet):
     def create(self, request):
-        team_students_names = [name.strip() for name in request.data["team_students"].split(",")]
-
+        team_students_names = [name.strip() for name in request.data["team_students"]]
+        print(team_students_names)
         team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
 
         task = Task.objects.get(id=request.data['task_id'])
