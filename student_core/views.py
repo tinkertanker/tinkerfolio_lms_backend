@@ -1,5 +1,3 @@
-import time
-import uuid
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -58,72 +56,20 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
         # list of students in the team
         team_students_names = [name.strip() for name in request.data["team_students"].split(",")]
 
-        team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
+        team_students = User.objects.filter(first_name__in=team_students_names)
 
         task=Task.objects.get(id=request.data['task_id'])
-  
         for student in team_students:
-            sub = Submission(task=task, student=student.studentUserID)
+            sub = Submission(task=task, student=student)
 
             if 'text' in request.data:
                 sub.text = request.data['text']
-
-            if 'image' in request.data:
-                image = request.data['image']
-                class_code = task.classroom.code
-                filename = '{}_{}_{}.{}'.format(
-                    class_code, request.data['task_id'],
-                    student.studentUserID.id,
-                    image.name.split('.')[1]
-                )
-                print(filename)
-                print(student.studentUserID.id)
-                sub.image.save(filename, ContentFile(image.read()))
+            
             sub.save()
-
-        # remove from submission status if exists
-        for student in team_students:
-            substatus = SubmissionStatus.objects.filter(task=task, student=student.studentUserID).first()
-            if substatus:
-                substatus.delete()
-
-            substatus = SubmissionStatus(task=sub.task, student=student.studentUserID)
-            substatus.save()
 
         return Response("Success creating group", status.HTTP_201_CREATED)
 
-    # def update(self, request, **kwargs):
-        # if request.user.user_type != 3:
-        #     return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
-        
-        # team_students_names = [name.strip() for name in request.data["team_students"].split(",")]
-
-        # team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
-        
-        # team_sub = Submission.objects.get(id=int(kwargs['pk']))
-       
-        # for student in team_students:
-        #     sub = Submission.objects.get(task=team_sub.task, student=student.studentUserID)
-        #     if sub.stars or sub.comments:
-        #         return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
-
-        #     if 'text' in request.data:
-        #         sub.text = request.data['text']
-
-        #     if 'image' in request.data:
-        #         image = request.data['image']
-        #         class_code = request.data['code']
-        #         filename = '{}_{}_{}.{}'.format(
-        #             class_code, request.data['task_id'],
-        #             student.id, image.name.split('.')[1]
-        #         )
-        #         sub.image.save(filename, ContentFile(image.read()))
-
-        #     sub.resubmitted_at = datetime.now()
-        #     sub.save()
-
-        # return Response("Success updating group", status.HTTP_201_CREATED)
-        
+   
 class StudentSubmissionViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
         sub = Submission.objects.get(id=int(kwargs['pk']))
