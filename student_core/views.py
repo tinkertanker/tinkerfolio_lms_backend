@@ -130,47 +130,23 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
         
-        if request.data['is_group_submission']:
-            studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
-            student_indexes = studentGroup[0].member_indexes
-            print(student_indexes)
+       
+        sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=request.user)
 
-            for i in student_indexes:
-                print(i)
-                sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=User.objects.get(id=i))
+        if 'text' in request.data:
+            sub.text = request.data['text']
 
-                if 'text' in request.data:
-                    sub.text = request.data['text']
+        if 'image' in request.data:
+            image = request.data['image']
+            class_code = request.data['code']
+            filename = '{}_{}_{}.{}'.format(
+                class_code, request.data['task_id'],
+                request.user.id, image.name.split('.')[1]
+            )
+            print(filename)
+            sub.image.save(filename, ContentFile(image.read()))
 
-                if 'image' in request.data:
-                    image = request.data['image']
-                    class_code = request.data['code']
-                    filename = '{}_{}_{}.{}'.format(
-                        class_code, request.data['task_id'],
-                        request.user.id, image.name.split('.')[1]
-                    )
-                    print(filename)
-                    sub.image.save(filename, ContentFile(image.read()))
-
-                sub.save()
-            
-        else:
-            sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=request.user)
-
-            if 'text' in request.data:
-                sub.text = request.data['text']
-
-            if 'image' in request.data:
-                image = request.data['image']
-                class_code = request.data['code']
-                filename = '{}_{}_{}.{}'.format(
-                    class_code, request.data['task_id'],
-                    request.user.id, image.name.split('.')[1]
-                )
-                print(filename)
-                sub.image.save(filename, ContentFile(image.read()))
-
-            sub.save()
+        sub.save()
 
         # remove from submission status if exists
         substatus = SubmissionStatus.objects.filter(task=sub.task, student=request.user).first()
@@ -186,51 +162,25 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
         
-        if request.data['is_group_submission']:
-            studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
-            student_indexes = studentGroup[0].member_indexes
+        sub = Submission.objects.get(id=int(kwargs['pk']))
 
-            for i in student_indexes:
-                sub = Submission.objects.filter(student=User.objects.get(id=i), task=Task.objects.get(id=request.data['id']))
+        if sub.stars or sub.comments:
+            return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
 
-                if sub.stars or sub.comments:
-                    return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
+        if 'text' in request.data:
+            sub.text = request.data['text']
 
-                if 'text' in request.data:
-                    sub.text = request.data['text']
+        if 'image' in request.data:
+            image = request.data['image']
+            class_code = request.data['code']
+            filename = '{}_{}_{}.{}'.format(
+                class_code, request.data['task_id'],
+                request.user.id, image.name.split('.')[1]
+            )
+            sub.image.save(filename, ContentFile(image.read()))
 
-                if 'image' in request.data:
-                    image = request.data['image']
-                    class_code = request.data['code']
-                    filename = '{}_{}_{}.{}'.format(
-                        class_code, request.data['task_id'],
-                        request.user.id, image.name.split('.')[1]
-                    )
-                    sub.image.save(filename, ContentFile(image.read()))
-
-                sub.resubmitted_at = datetime.now()
-                sub.save()
-
-        else:
-            sub = Submission.objects.get(id=int(kwargs['pk']))
-
-            if sub.stars or sub.comments:
-                return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
-
-            if 'text' in request.data:
-                sub.text = request.data['text']
-
-            if 'image' in request.data:
-                image = request.data['image']
-                class_code = request.data['code']
-                filename = '{}_{}_{}.{}'.format(
-                    class_code, request.data['task_id'],
-                    request.user.id, image.name.split('.')[1]
-                )
-                sub.image.save(filename, ContentFile(image.read()))
-
-            sub.resubmitted_at = datetime.now()
-            sub.save()
+        sub.resubmitted_at = datetime.now()
+        sub.save()
 
         return Response(SubmissionSerializer(sub).data)
 

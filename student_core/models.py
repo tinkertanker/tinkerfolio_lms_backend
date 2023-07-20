@@ -11,18 +11,3 @@ class Enroll(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     studentIndex = models.IntegerField()
     score = models.IntegerField(default=0)
-
-class StudentGroup(models.Model):
-    # for student groups to work, you need the classroom code, the group number, 
-    # and the index number of the students
-    # uniquely identified by the classroom code and group number
-
-    class Meta:
-        constraints=[
-            models.UniqueConstraint(fields = ['classroom', 'group_number'], name = 'unique_identifier')
-        ]
-
-    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
-    group_number = models.PositiveSmallIntegerField()
-
-    member_indexes = models.JSONField(default=list)
