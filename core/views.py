@@ -6,7 +6,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django.core.files.base import ContentFile
 
-from core.models import Classroom, GroupSubmission, Task, Submission, Announcement, ResourceSection, Resource
+from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource
 from accounts.models import User, StudentProfile
 from core.serializers import *
 

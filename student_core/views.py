@@ -1,4 +1,3 @@
-import uuid
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -6,7 +5,7 @@ from rest_framework import status
 from rest_framework import permissions
 from django.core.files.base import ContentFile
 
-from core.models import Classroom, GroupSubmission, Task
+from core.models import Classroom, Task
 from accounts.models import User, StudentProfile
 from student_core.models import Enroll
 from core.serializers import *
@@ -54,70 +53,23 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
-        team_students_id = request.data['team_students']
-        team_students = [StudentProfile.objects.get(id=student_id) for student_id in team_students_id]
+        # list of students in the team
+        team_students_names = [name.strip() for name in request.data["team_students"].split(",")]
 
-        team_sub = GroupSubmission(task=Task.objects.get(id=request.data['task_id']), group_name=request.data['group'], associated_students=team_students, submitting_student=request.user)
-        team_sub.save()
+        team_students = User.objects.filter(first_name__in=team_students_names)
 
+        task=Task.objects.get(id=request.data['task_id'])
         for student in team_students:
-            sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=student)
+            sub = Submission(task=task, student=student)
 
             if 'text' in request.data:
                 sub.text = request.data['text']
-
-            if 'image' in request.data:
-                image = request.data['image']
-                class_code = request.data['code']
-                filename = '{}_{}_{}.{}'.format(
-                    class_code, request.data['task_id'],
-                    request.data['group'], image.name.split('.')[1]
-                )
-                print(filename)
-                sub.image.save(filename, ContentFile(image.read()))
-
+            
             sub.save()
 
-        # remove from submission status if exists
-        for student in team_students:
-            substatus = SubmissionStatus.objects.filter(task=team_sub.task, student=student).first()
-            if substatus:
-                substatus.delete()
+        return Response("Success creating group", status.HTTP_201_CREATED)
 
-            substatus = SubmissionStatus(task=sub.task, student=request.user)
-            substatus.save()
-
-        return Response(GroupSubmissionSerializer(team_sub).data)
-
-    def update(self, request, **kwargs):
-        if request.user.user_type != 3:
-            return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
-        team_students_id = request.data['team_students']
-        team_students = [StudentProfile.objects.get(id=student_id) for student_id in team_students_id]
-        team_sub = GroupSubmission.objects.get(id=int(kwargs['pk']))
-
-        for student in team_students:
-            sub = Submission.objects.get(task=Task.objects.get(id=request.data['task_id']), student=student)
-            if sub.stars or sub.comments:
-                return Response('Submission has already been graded.', status.HTTP_403_FORBIDDEN)
-
-            if 'text' in request.data:
-                sub.text = request.data['text']
-
-            if 'image' in request.data:
-                image = request.data['image']
-                class_code = request.data['code']
-                filename = '{}_{}_{}.{}'.format(
-                    class_code, request.data['task_id'],
-                    request.user.id, image.name.split('.')[1]
-                )
-                sub.image.save(filename, ContentFile(image.read()))
-
-            sub.resubmitted_at = datetime.now()
-            sub.save()
-
-        return Response(GroupSubmissionSerializer(team_sub).data)
-
+   
 class StudentSubmissionViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
         sub = Submission.objects.get(id=int(kwargs['pk']))
@@ -211,6 +163,30 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(status).data)
 
+class GroupSubmissionStatusViewSet(viewsets.ViewSet):
+    def create(self, request):
+        team_students_names = [name.strip() for name in request.data["team_students"]]
+        team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
+
+
+        task = Task.objects.get(id=request.data['task_id'])
+
+        for student in team_students:
+            # if exists update
+            if SubmissionStatus.objects.filter(task=task, student=student.studentUserID).exists():
+                substatus = SubmissionStatus.objects.get(task=task, student=student.studentUserID)
+                substatus.status = request.data['status']
+                substatus.save()
+            else:
+                substatus = SubmissionStatus(
+                    task=task, student=student.studentUserID,
+                    status=request.data['status']
+                )
+                substatus.save()
+
+        return Response({'message': 'Group submission status updated.'})
+
+    
 # this fetches the resources files
 class StudentResourceViewSet(viewsets.ViewSet):
     def retrieve(self, request, **kwargs):
