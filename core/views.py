@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from django.core.files.base import ContentFile
 
 from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource
-from accounts.models import User, StudentProfile
+from accounts.models import User
 from core.serializers import *
 
 from core.utils import verify_classroom_owner
@@ -36,6 +36,7 @@ class ClassroomViewSet(viewsets.ViewSet):
         return Response(ClassroomSerializer(classroom).data)
 
     def create(self, request):
+        print(request.data)
         # Creates a new classroom code
         code = uuid.uuid4().hex[:6]
 
@@ -43,8 +44,8 @@ class ClassroomViewSet(viewsets.ViewSet):
         teacher=request.user, code=code,
         name=request.data['name'], 
         student_indexes=[], 
-        group_indexes=[],
         )
+        
         classroom.save()
 
         return Response(ClassroomSerializer(classroom).data)
@@ -90,11 +91,6 @@ class ClassroomViewSet(viewsets.ViewSet):
             except:
                 student_name = ""
 
-            # Creates an entry in the StudentProfile table
-            # student_profile = StudentProfile(
-            #     student=student, assigned_class_code=classroom.code, index=index,
-            #     name=student_name
-            # )
             student_profile = Enroll(studentUserID=student, studentIndex=index, classroom=classroom, name=student_name)
             student_profile.save()
 
@@ -127,35 +123,6 @@ class StudentViewSet(viewsets.ViewSet):
         classroom = Classroom.objects.get(code=request.data['code'])
         profile = Enroll.objects.get(
             classroom=classroom, studentIndex=request.data['index'])
-        profile.name = request.data['name']
-        profile.save()
-        return Response('done')
-    
-class StudentProfileViewSet(viewsets.ViewSet):
-    '''
-    Relates to student profile management, accessible only by teachers or admins, has 2 methods:
-    1. List - obtains a list of all students
-    2. Update - updates the name of the student for a specific classroom based on student ID
-    '''
-
-    def list(self, request):
-        # student ID is from User instance, not StudentProfile instance
-        verify_classroom_owner(request.query_params['code'], request.user)
-
-        queryset = StudentProfile.objects.filter(
-            assigned_class_code=request.query_params['code'])
-        profiles = []
-        for sp in queryset:
-            profile = StudentProfileSerializer(sp).data
-            profile['id'] = sp.student.id
-            profiles.append(profile)
-        return Response(profiles)
-
-    def update(self, request, **kwargs):
-        verify_classroom_owner(request.data['code'], request.user)
-
-        profile = StudentProfile.objects.get(
-            assigned_class_code=request.data['code'], index=request.data['index'])
         profile.name = request.data['name']
         profile.save()
         return Response('done')

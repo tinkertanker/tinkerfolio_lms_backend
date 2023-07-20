@@ -7,7 +7,7 @@ class Enroll(models.Model):
     def __str__(self):
         return str(self.studentUserID) + ', Classroom: ' + str(self.classroom) 
 
-    student_user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    studentUserID = models.ForeignKey(User, on_delete=models.CASCADE)
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     studentIndex = models.IntegerField()
     score = models.IntegerField(default=0)

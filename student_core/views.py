@@ -6,7 +6,7 @@ from rest_framework import permissions
 from django.core.files.base import ContentFile
 
 from core.models import Classroom, Task
-from accounts.models import User, StudentProfile
+from accounts.models import User
 from student_core.models import Enroll
 from core.serializers import *
 
@@ -18,7 +18,7 @@ class StudentInitialViewSet(viewsets.ViewSet):
     def list(self, request):
         ## Get student's initial tasks and submissions
         print(request.user.user_type)
-        if request.user.user_type != 3:
+        if request.user.user_type != 1:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
         classroom = Classroom.objects.get(code=request.query_params['code'])
@@ -50,13 +50,15 @@ class StudentInitialViewSet(viewsets.ViewSet):
 
 class GroupSubmissionViewSet(viewsets.ViewSet):
     def create(self, request):
-        if request.user.user_type != 3:
+        print(request.data)
+        if request.user.user_type != 1:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
 
         # list of students in the team
         team_students_names = [name.strip() for name in request.data["team_students"].split(",")]
-
+        print(team_students_names)
         team_students = User.objects.filter(first_name__in=team_students_names)
+        print(team_students)
 
         task=Task.objects.get(id=request.data['task_id'])
         for student in team_students:
@@ -64,7 +66,7 @@ class GroupSubmissionViewSet(viewsets.ViewSet):
 
             if 'text' in request.data:
                 sub.text = request.data['text']
-            
+            print(sub)
             sub.save()
 
         return Response("Success creating group", status.HTTP_201_CREATED)
@@ -79,7 +81,7 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         return Response(SubmissionSerializer(sub).data)
 
     def create(self, request):
-        if request.user.user_type != 3:
+        if request.user.user_type != 1:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
         
        
@@ -111,7 +113,7 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
         return Response(SubmissionSerializer(sub).data)
 
     def update(self, request, **kwargs):
-        if request.user.user_type != 3:
+        if request.user.user_type != 1:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
         
         sub = Submission.objects.get(id=int(kwargs['pk']))
@@ -162,30 +164,6 @@ class StudentSubmissionStatusViewSet(viewsets.ViewSet):
         status.save()
 
         return Response(SubmissionStatusSerializer(status).data)
-
-class GroupSubmissionStatusViewSet(viewsets.ViewSet):
-    def create(self, request):
-        team_students_names = [name.strip() for name in request.data["team_students"]]
-        team_students = Enroll.objects.filter(studentUserID__first_name__in=team_students_names)
-
-
-        task = Task.objects.get(id=request.data['task_id'])
-
-        for student in team_students:
-            # if exists update
-            if SubmissionStatus.objects.filter(task=task, student=student.studentUserID).exists():
-                substatus = SubmissionStatus.objects.get(task=task, student=student.studentUserID)
-                substatus.status = request.data['status']
-                substatus.save()
-            else:
-                substatus = SubmissionStatus(
-                    task=task, student=student.studentUserID,
-                    status=request.data['status']
-                )
-                substatus.save()
-
-        return Response({'message': 'Group submission status updated.'})
-
     
 # this fetches the resources files
 class StudentResourceViewSet(viewsets.ViewSet):
@@ -221,7 +199,7 @@ class EnrollViewSet(viewsets.ViewSet):
         return Response(enrollments.data)
 # 
     def retrieve(self, request, **kwargs):
-        if request.user.user_type == 2:
+        if request.user.user_type != 1:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
         
         verify_classroom_participant(kwargs['pk'], request.user)
