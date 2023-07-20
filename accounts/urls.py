@@ -4,11 +4,10 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView, 
 )
-from .views import StudentRegister, TeacherSignUp, StudentSignUp, CustomTokenObtainPairView, CustomTokenVerifyView, CustomTokenRefreshView
+from .views import TeacherSignUp, StudentSignUp, CustomTokenObtainPairView, CustomTokenVerifyView, CustomTokenRefreshView
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register(r'student_register', StudentRegister, basename="student_register")
 
 # USE THIS FOR SIGN UP
 router.register(r'teacher_signup', TeacherSignUp, basename="teacher_signup")

@@ -66,13 +66,6 @@ class SubmissionStatus(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
 
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=0)
-
-class GroupSubmission(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    group_name = models.CharField(max_length=200)
-    submitting_student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submitted_group_submissions', null=True, blank=True)
-    associated_students = models.ManyToManyField(User, related_name='associated_group_submissions', null=True, blank=True)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True)
     
 class Submission(models.Model):
 

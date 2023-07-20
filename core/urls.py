@@ -5,7 +5,6 @@ from core.views import *
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
 router.register(r'classrooms', ClassroomViewSet, basename="classroom")
-router.register(r'student_profiles', StudentProfileViewSet, basename="student_profile")
 router.register(r'tasks', TaskViewSet, basename="task")
 router.register(r'submissions', SubmissionViewSet, basename="submission")
 router.register(r'submission_status', SubmissionStatusViewSet, basename="submission_status")
