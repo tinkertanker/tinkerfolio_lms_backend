@@ -47,6 +47,8 @@ class Task(models.Model):
     published_at = models.DateTimeField(blank=True, null=True)
     is_group = models.BooleanField(default=False)
 
+    is_group_task = models.BooleanField(default=False)
+
 class SubmissionStatus(models.Model):
 
     class Meta:

@@ -57,8 +57,15 @@ class TeacherSignUp(viewsets.ViewSet):
         if passcode != env('PASSCODE'):
             return Response({'error': 'Invalid passcode.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if User.objects.filter(username=request.data['username']).exists():
+            return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email=request.data['email']).exists():
+            return Response({'error': 'Email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
         teacher = User(username=request.data['username'], user_type=2, email=request.data['email'], first_name=request.data['first_name'])
         teacher.set_password(request.data['password'])
+
         teacher.save()
 
         return Response({'Account': 'Teacher','Username': request.data['username'], 'First Name': request.data['first_name']})
@@ -66,35 +73,20 @@ class TeacherSignUp(viewsets.ViewSet):
 
 class StudentSignUp(viewsets.ViewSet):
     permission_classes = [AllowAny]
-    
     def create(self, request):
-        username = request.data.get('username')
-        email = request.data.get('email')
-        first_name = request.data.get('first_name')
-        password = request.data.get('password')
-        
-        if User.objects.filter(username=username).exists():
+
+        if User.objects.filter(username=request.data['username']).exists():
             return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if User.objects.filter(email=email).exists():
+
+        if User.objects.filter(email=request.data['email']).exists():
             return Response({'error': 'Email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        student = User(username=username, user_type=3, email=email, first_name=first_name)
-        student.set_password(password)
+        student = User(username=request.data['username'], user_type=1, email=request.data['email'], first_name=request.data['first_name'])
+        student.set_password(request.data['password'])
+        
         student.save()
 
-        return Response({'Account': 'Student', 'Username': username, 'First Name': first_name})
-
-# OUTDATED
-class StudentJoinClass(viewsets.ViewSet):
-    permission_classes = [AllowAny]
-    def create(self, request):
-        enroll = Enroll(
-            studentUserID=request.data['user_id'],classroom=request.data['code'], studentIndex=request.data['index'], score=0
-        )
-        enroll.save()
-
-        return Response({'Student Account': 'studentUserId', 'Classroom': 'classroom', 'Index': 'studentIndex'})
+        return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name'})
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -106,7 +98,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         if inputUserType == "teacher":
             inputUserCode = 2
         elif inputUserType == "student":
-            inputUserCode = 3
+            inputUserCode = 1
         if user.user_type != inputUserCode:
             raise AuthenticationFailed('Invalid user type.')
 

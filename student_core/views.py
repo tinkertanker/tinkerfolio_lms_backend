@@ -81,7 +81,8 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
     def create(self, request):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
-
+        
+       
         sub = Submission(task=Task.objects.get(id=request.data['task_id']), student=request.user)
 
         if 'text' in request.data:
@@ -112,7 +113,7 @@ class StudentSubmissionViewSet(viewsets.ViewSet):
     def update(self, request, **kwargs):
         if request.user.user_type != 3:
             return Response('User is not a student.', status.HTTP_403_FORBIDDEN)
-
+        
         sub = Submission.objects.get(id=int(kwargs['pk']))
 
         if sub.stars or sub.comments:
@@ -234,6 +235,7 @@ class StudentPortfolioViewSet(viewsets.ViewSet):
         serializer = SubmissionSerializer(submissions, many=True)
 
         return Response(serializer.data)
+    
     
 # this fetches the ranking of the students in the classroom
 @api_view(['GET'])

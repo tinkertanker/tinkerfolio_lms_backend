@@ -41,7 +41,9 @@ class ClassroomViewSet(viewsets.ViewSet):
 
         classroom = Classroom(
         teacher=request.user, code=code,
-        name=request.data['name'], student_indexes=[]
+        name=request.data['name'], 
+        student_indexes=[], 
+        group_indexes=[],
         )
         classroom.save()
 
@@ -129,7 +131,6 @@ class StudentViewSet(viewsets.ViewSet):
         profile.save()
         return Response('done')
     
-
 class StudentProfileViewSet(viewsets.ViewSet):
     '''
     Relates to student profile management, accessible only by teachers or admins, has 2 methods:
@@ -158,7 +159,6 @@ class StudentProfileViewSet(viewsets.ViewSet):
         profile.name = request.data['name']
         profile.save()
         return Response('done')
-
 
 class TaskViewSet(viewsets.ViewSet):
     '''
@@ -189,7 +189,7 @@ class TaskViewSet(viewsets.ViewSet):
                 classroom=Classroom.objects.get(code=task_data['code']),
                 name=task_data['name'],
                 description=task_data['description'],
-                max_stars=task_data['max_stars'],
+                max_stars=5,
                 is_group=task_data['isGroupSubmission']
             )
 
@@ -198,6 +198,7 @@ class TaskViewSet(viewsets.ViewSet):
                 task.display = task_data['display']
                 if task_data['display'] == 1:
                     task.published_at = timezone.now()
+                    
             else:
                 # If no display value is present, task is published by default
                 task.published_at = timezone.now()
@@ -224,6 +225,7 @@ class TaskViewSet(viewsets.ViewSet):
         task.description = request.data['description']
         task.status = request.data['status']
         task.max_stars = request.data['max_stars']
+        task.is_group_task = request.data['is_group_task']
 
         if 'display' in request.data:
             # Allows for tasks to be published
@@ -245,7 +247,6 @@ class TaskViewSet(viewsets.ViewSet):
         task.delete()
 
         return Response("task deleted")
-
 
 class SubmissionViewSet(viewsets.ViewSet):
     '''
@@ -298,7 +299,6 @@ class SubmissionStatusViewSet(viewsets.ViewSet):
 
         return Response(SubmissionStatusSerializer(statuses, many=True).data)
 
-
 class AnnouncementViewSet(viewsets.ViewSet):
     '''
     Relates to announcements, accessible by teachers and admins, has 4 methods:
@@ -345,7 +345,6 @@ class AnnouncementViewSet(viewsets.ViewSet):
         announcement.delete()
 
         return Response("announcement deleted")
-
 
 class ResourceSectionViewSet(viewsets.ViewSet):
     # I think this displays all the information relating to resources in the dashboard?
@@ -418,7 +417,6 @@ class ResourceSectionViewSet(viewsets.ViewSet):
 
         return Response(True)
 
-
 class ResourceViewSet(viewsets.ViewSet):
     # And this one relates to displaying an individual resource
     '''
@@ -463,4 +461,3 @@ class ResourceViewSet(viewsets.ViewSet):
         res.delete()
 
         return Response(True)
-
