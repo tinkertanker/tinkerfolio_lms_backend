@@ -17,7 +17,6 @@ class Classroom(models.Model):
     code = models.CharField(max_length=6)
     student_indexes = models.JSONField(default=list)
     status = models.PositiveSmallIntegerField(choices=STATUS_TYPES, default=1)
-    group_indexes = models.JSONField(default=list)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
