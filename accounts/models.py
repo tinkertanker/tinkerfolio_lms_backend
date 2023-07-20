@@ -22,15 +22,3 @@ class User(AbstractUser):
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPES,default=2)
     first_name = models.CharField(max_length=150, blank=False, null=False)
     email = models.EmailField(blank=False, null=False)
-
-# class StudentProfile(models.Model):
-
-#     def __str__(self):
-#         return self.name+' (Class: '+self.assigned_class_code+'; Index: '+str(self.index)+')'
-
-#     student = models.OneToOneField(User, on_delete=models.CASCADE)
-#     assigned_class_code = models.CharField(max_length=6)
-#     index = models.IntegerField()
-#     name = models.CharField(max_length=200, default="")
-#     score = models.IntegerField(default=0)
-#     created_by_student = models.BooleanField(default=False)

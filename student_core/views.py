@@ -236,39 +236,6 @@ class StudentPortfolioViewSet(viewsets.ViewSet):
 
         return Response(serializer.data)
     
-class StudentGroupViewSet(viewsets.ViewSet):
-    # Create a new group, with the group number set as the length of the group number list + 1
-    def create(self, request):
-        new_group_number = len(self.group_number) + 1
-
-        studentGroup = StudentGroup(
-            classroom = Classroom.objects.get(code=request.data['code']),
-            group_number = new_group_number,
-            member_indexes = [request.data['index']]
-        )
-        studentGroup.save()
-
-        return Response(studentGroup)
-    
-    # allows for adding or removing a student from the group
-    def update(self, request):
-        studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
-
-        is_add_new_student = request.data['is_add_new_student']
-
-        if is_add_new_student:
-            studentGroup.memeber_indexes.append(request.data['index'])
-        else: 
-            studentGroup.member_indexes.remove(request.data['index'])
-
-        studentGroup.save()
-        return Response(studentGroup)
-
-    # allows for deletion of group members
-    def delete(self, request):
-        studentGroup = StudentGroup.objects.filter(classroom=Classroom.objects.get(code=request.data['code']), group_number=request.data['group_number'])
-        studentGroup.delete()
-        return Response("Group deleted")
     
 # this fetches the ranking of the students in the classroom
 @api_view(['GET'])
