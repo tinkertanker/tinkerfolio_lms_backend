@@ -1,3 +1,5 @@
+
+import environ
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
@@ -9,6 +11,10 @@ from accounts.models import User, StudentProfile
 from core.models import Classroom
 from student_core.models import Enroll
 
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 # OUTDATED
 class StudentRegister(viewsets.ViewSet):
     '''
@@ -47,6 +53,9 @@ class StudentRegister(viewsets.ViewSet):
 class TeacherSignUp(viewsets.ViewSet):
     permission_classes = [AllowAny]
     def create(self, request):
+        passcode = request.data.get('passcode')
+        if passcode != env('PASSCODE'):
+            return Response({'error': 'Invalid passcode.'}, status=status.HTTP_400_BAD_REQUEST)
 
         teacher = User(username=request.data['username'], user_type=2, email=request.data['email'], first_name=request.data['first_name'])
         teacher.set_password(request.data['password'])
