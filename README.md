@@ -9,6 +9,6 @@ Co-developed with Tinkertanker
 - This app has been setup to handle WebSocket connections. Daphne is used as the ASGI server.
 
 ## More Information
-For more details on the implementation, please refer to the [docs](docs/docs.md).
+For more details on the implementation, please refer to the [docs](https://github.com/tinkertanker/LMS_Frontend/blob/main/documentation/DeveloperGuide.md).
 
 The frontend of this project can be found [here](https://github.com/tinkertanker/LMS_Frontend).
