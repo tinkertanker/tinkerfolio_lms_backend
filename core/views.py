@@ -121,10 +121,15 @@ class StudentViewSet(viewsets.ViewSet):
     def update(self, request, **kwargs):
         verify_classroom_owner(request.data['code'], request.user)
         classroom = Classroom.objects.get(code=request.data['code'])
-        profile = Enroll.objects.get(
-            classroom=classroom, studentIndex=request.data['index'])
+        profile = Enroll.objects.get(classroom=classroom, studentIndex=request.data['index'])
+        
+        student_user = profile.studentUserID
+        student_user.first_name = request.data['name']
+        student_user.save()
+
         profile.name = request.data['name']
         profile.save()
+
         return Response('done')
 
 class TaskViewSet(viewsets.ViewSet):

@@ -98,17 +98,27 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 db_from_env = dj_database_url.config(conn_max_age=600)
 
+# For testing, use the second 'default' database. Otherwise, use the first.
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': env('DB_NAME'),
+    #     'USER': env('DB_USER'),
+    #     'PASSWORD': env('DB_PASSWORD'),
+    #     'HOST': env('DB_HOST'),
+    #     'PORT': env('DB_PORT'),
+    # },
+
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
     }
 }
-DATABASES['default'].update(db_from_env)
+
+# Set TEST settings for SQLite3
+if 'sqlite3' in DATABASES['default']['ENGINE']:
+    DATABASES['default']['TEST'] = {
+        'NAME': 'test_db',
+    }
 
 
 # Password validation
