@@ -10,21 +10,16 @@ User = get_user_model()
 
 class StudentSubmissionViewSetTestCase(TestCase):
     def setUp(self):
-        # Create a test teacher with user_type=2 (teacher)
         self.teacher = User.objects.create_user(username='teacher', password='teacherpassword', user_type=2)
 
-        # Create a test student with user_type=1 (student)
         self.student = User.objects.create_user(username='student', password='studentpassword', user_type=1)
 
         self.client = APIClient()
         self.client.force_authenticate(user=self.teacher)
-        # Create a test classroom associated with the teacher
         self.classroom = Classroom.objects.create(teacher=self.teacher, name='Test Classroom', code='testcode')
 
-        # Enroll the student in the classroom
         self.enroll = Enroll.objects.create(classroom=self.classroom, studentUserID=self.student, studentIndex=1)
 
-        # Create a test task associated with the classroom
         self.task = Task.objects.create(classroom=self.classroom, name='Test Task', description='This is a test task.', display=1, max_stars=5)
 
         self.client = APIClient()
@@ -33,11 +28,9 @@ class StudentSubmissionViewSetTestCase(TestCase):
     def test_create_submission(self):
         url = '/student/submission/'
 
-        # Make a request to create a submission
         data = {
             'task_id': self.task.id,
             'text': 'Test submission text.',
-            # You can add 'image' field with a file to simulate image upload.
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -54,7 +47,6 @@ class StudentSubmissionViewSetTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Check if the returned data matches the expected data
         expected_data = {
             'id': submission.id,
             'task': self.task.id,
