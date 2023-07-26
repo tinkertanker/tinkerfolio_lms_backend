@@ -51,7 +51,7 @@ class StudentSignUp(viewsets.ViewSet):
         
         student.save()
 
-        return Response({'Account': 'Student','Username': 'username', 'First Name': 'first_name'})
+        return Response({'Account': 'Student','Username': request.data['username'], 'First Name': request.data['first_name']})
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
