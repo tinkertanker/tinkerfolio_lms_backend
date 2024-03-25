@@ -183,7 +183,7 @@ class EnrollViewSet(viewsets.ViewSet):
             return Response('Student is already in the classroom.', status.HTTP_403_FORBIDDEN)
         present_students = Enroll.objects.filter(classroom=classroom)
         num_of_students = len(present_students)
-        new_index = num_of_students + 1
+        new_index = present_students[present_students.count()-1].studentIndex+1
         classroom.student_indexes = classroom.student_indexes + [new_index]
         classroom.save()
         
