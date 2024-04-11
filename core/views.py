@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from django.core.files.base import ContentFile
 
 from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource
@@ -107,6 +108,15 @@ class ClassroomViewSet(viewsets.ViewSet):
         classroom.delete()
 
         return Response("classroom deleted")
+
+@api_view(['POST'])
+def BulkView(request, **kwargs):
+    class_code = request.query_params['code']
+    number_students = request.query_params['number']
+    print("Class code", class_code)
+    print("number: ", number_students)
+    #classroom = Classroom.objects.get(code=request.query_params['code'])
+    return Response("Test")
 
 class StudentViewSet(viewsets.ViewSet):
     def list(self, request):
