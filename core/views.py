@@ -113,16 +113,18 @@ class ClassroomViewSet(viewsets.ViewSet):
 def BulkView(request, **kwargs):
     class_code = request.query_params['code']
     classroom = Classroom.objects.get(code=class_code)
+    prefix = request.query_params['prefix']
+    if prefix == "": prefix = classroom.name
     number_students = int(request.query_params['number'])
     suffix = 0
     new_students = []
     all_names = list(User.objects.values_list("username", flat=True))
     for i in range(number_students):
         suffix += 1
-        new_username = class_code+"_"+str(suffix)
+        new_username = prefix+str(suffix)
         while new_username in all_names:
             suffix += 1
-            new_username = class_code+"_"+str(suffix)
+            new_username = prefix+str(suffix)
         password_length = 10
         new_password = "".join([random.SystemRandom().choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()") for i in range(password_length)])
         print("Adding user")
