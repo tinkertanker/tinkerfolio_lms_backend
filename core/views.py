@@ -113,10 +113,18 @@ class ClassroomViewSet(viewsets.ViewSet):
 def BulkView(request, **kwargs):
     class_code = request.query_params['code']
     classroom = Classroom.objects.get(code=class_code)
+    
     prefix = request.query_params['prefix']
     if prefix == "": prefix = classroom.name
+    
+    raw_names = request.query_params['names'].split("\n")
+    names = list(filter(lambda x : x != "", raw_names))
+    names_idx = 0
+    
     number_students = int(request.query_params['number'])
+    number_students = max(len(names), number_students)
     suffix = 0
+    
     new_students = []
     all_names = list(User.objects.values_list("username", flat=True))
     for i in range(number_students):
@@ -125,29 +133,35 @@ def BulkView(request, **kwargs):
         while new_username in all_names:
             suffix += 1
             new_username = prefix+str(suffix)
+        
         password_length = 10
         new_password = "".join([random.SystemRandom().choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()") for i in range(password_length)])
         print("Adding user")
         print(new_username, new_password)
+
+        if names_idx < len(names):
+            new_name = names[names_idx]
+            names_idx += 1
+        else:
+            new_name = "Student "+str(suffix)
+
         #create the new account
-        student = User(username=new_username, user_type=1, email=new_username+"@tinkerfolio.com", first_name="Student "+str(suffix))
+        student = User(username=new_username, user_type=1, email=new_username+"@tinkerfolio.com", first_name=new_name)
         student.set_password(new_password)
         student.save()
-        print(student)
-
+        
         #enroll the new account using the class code
         present_students = Enroll.objects.filter(classroom=classroom)
         num_of_students = len(present_students)
         new_index = present_students[present_students.count()-1].studentIndex+1
         classroom.student_indexes = classroom.student_indexes + [new_index]
         classroom.save()
-        print(new_index)
         
         enroll = Enroll(classroom=classroom, studentUserID=student, studentIndex=new_index, score=0)
         enroll.save()
         print(enroll)
 
-        new_students.append({"username": new_username, "password": new_password})
+        new_students.append({"username": new_username, "password": new_password, "name": new_name})
     print("succesfully created " + str(number_students) + " users")
     return Response({"users": new_students})
 
