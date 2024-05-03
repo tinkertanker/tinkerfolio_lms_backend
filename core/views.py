@@ -116,6 +116,7 @@ def BulkView(request, **kwargs):
     
     prefix = request.query_params['prefix']
     if prefix == "": prefix = classroom.name
+    prefix = prefix.replace(" ", "_")
     
     raw_names = request.query_params['names'].split("\n")
     names = list(filter(lambda x : x != "", raw_names))
