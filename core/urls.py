@@ -12,9 +12,7 @@ router.register(r'announcements', AnnouncementViewSet, basename="announcement")
 router.register(r'resource_section', ResourceSectionViewSet, basename="resource_section")
 router.register(r'resource', ResourceViewSet, basename="resource")
 router.register(r'student_list', StudentViewSet, basename="student_list"),
-
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('', include(router.urls)),
-    path('bulk/<str:code>/', BulkView, name="bulk")
 ]

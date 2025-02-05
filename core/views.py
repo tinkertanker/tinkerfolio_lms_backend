@@ -4,7 +4,6 @@ from django.utils import timezone
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from django.core.files.base import ContentFile
 
 from core.models import Classroom, Task, Submission, Announcement, ResourceSection, Resource
@@ -13,7 +12,7 @@ from core.serializers import *
 
 from core.utils import verify_classroom_owner
 
-import random
+
 class ClassroomViewSet(viewsets.ViewSet):
     '''
     Relates to classroom management, accessible only by teachers and admins, and has 5 methods:
@@ -108,63 +107,6 @@ class ClassroomViewSet(viewsets.ViewSet):
         classroom.delete()
 
         return Response("classroom deleted")
-
-@api_view(['POST'])
-def BulkView(request, **kwargs):
-    class_code = request.query_params['code']
-    classroom = Classroom.objects.get(code=class_code)
-    
-    prefix = request.query_params['prefix']
-    if prefix == "": prefix = classroom.name
-    prefix = prefix.replace(" ", "_")
-    
-    raw_names = request.query_params['names'].split("\n")
-    names = list(filter(lambda x : x != "", raw_names))
-    names_idx = 0
-    
-    number_students = int(request.query_params['number'])
-    number_students = max(len(names), number_students)
-    suffix = 0
-    
-    new_students = []
-    all_names = list(User.objects.values_list("username", flat=True))
-    for i in range(number_students):
-        suffix += 1
-        new_username = prefix+str(suffix)
-        while new_username in all_names:
-            suffix += 1
-            new_username = prefix+str(suffix)
-        
-        password_length = 10
-        new_password = "".join([random.SystemRandom().choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()") for i in range(password_length)])
-        print("Adding user")
-        print(new_username, new_password)
-
-        if names_idx < len(names):
-            new_name = names[names_idx]
-            names_idx += 1
-        else:
-            new_name = "Student "+str(suffix)
-
-        #create the new account
-        student = User(username=new_username, user_type=1, email=new_username+"@tinkerfolio.com", first_name=new_name)
-        student.set_password(new_password)
-        student.save()
-        
-        #enroll the new account using the class code
-        present_students = Enroll.objects.filter(classroom=classroom)
-        num_of_students = len(present_students)
-        new_index = present_students[present_students.count()-1].studentIndex+1
-        classroom.student_indexes = classroom.student_indexes + [new_index]
-        classroom.save()
-        
-        enroll = Enroll(classroom=classroom, studentUserID=student, studentIndex=new_index, score=0)
-        enroll.save()
-        print(enroll)
-
-        new_students.append({"username": new_username, "password": new_password, "name": new_name})
-    print("succesfully created " + str(number_students) + " users")
-    return Response({"users": new_students})
 
 class StudentViewSet(viewsets.ViewSet):
     def list(self, request):
