@@ -11,6 +11,6 @@ Forked from [Echoclass](https://echoclass.com) by [Michael Chen](https://github.
 
 ## More Information
 
-For more details on the implementation, please refer to the [docs](https://github.com/tinkertanker/LMS_Frontend/blob/main/documentation/DeveloperGuide.md).
+For more details on the implementation, please refer to the [docs](https://github.com/tinkertanker/tinkerfolio_lms_frontend/blob/main/documentation/DeveloperGuide.md).
 
-The frontend of this project can be found [here](https://github.com/tinkertanker/tinkerfolio-lms-frontend).
+The frontend of this project can be found [here](https://github.com/tinkertanker/tinkerfolio_lms_frontend).
