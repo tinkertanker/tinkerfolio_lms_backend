@@ -194,11 +194,15 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ASGI_APPLICATION = 'backend.asgi.application'
+
+# Channel layers configuration
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(env('REDIS_URL'))],
+            "hosts": [REDIS_URL],
         },
     },
 }
