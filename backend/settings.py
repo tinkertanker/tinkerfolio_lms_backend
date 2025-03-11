@@ -198,34 +198,24 @@ ASGI_APPLICATION = 'backend.asgi.application'
 # Channel layers configuration
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
 
-# Use in-memory channel layer for testing
+# Use Redis channel layer for production
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [{
+                "address": REDIS_URL,
+                "ssl_cert_reqs": None
+            }],
+        },
     },
 }
 
-# Commented out Redis configuration for reference
-# # Parse the Redis URL to handle SSL connections properly
-# if REDIS_URL.startswith('rediss://'):
-#     # For SSL Redis connections
-#     CHANNEL_LAYERS = {
-#         'default': {
-#             'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#             'CONFIG': {
-#                 "hosts": [{"address": REDIS_URL}],
-#             },
-#         },
-#     }
-# else:
-#     # For non-SSL Redis connections
-#     CHANNEL_LAYERS = {
-#         'default': {
-#             'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#             'CONFIG': {
-#                 "hosts": [REDIS_URL],
-#             },
-#         },
-#     }
+# Commented out in-memory configuration for reference
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#     },
+# }
 
 # "hosts": [('127.0.0.1', 6379)],
