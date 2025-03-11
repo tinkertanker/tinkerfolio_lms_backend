@@ -198,41 +198,17 @@ ASGI_APPLICATION = 'backend.asgi.application'
 # Channel layers configuration
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
 
-# For aioredis 2.0+ and channels-redis 4.0+
-# The newer versions need different configuration for SSL
-if REDIS_URL.startswith('rediss://'):
-    # For SSL Redis connections, use a modified URL
-    # The newer Redis libraries handle SSL verification through the URL itself
-    
-    # If using rediss://, we need to disable SSL verification through the URL
-    import urllib.parse
-    parsed_url = urllib.parse.urlparse(REDIS_URL)
-    query_dict = dict(urllib.parse.parse_qsl(parsed_url.query))
-    # Add SSL verification parameter
-    query_dict['ssl_cert_reqs'] = 'none'
-    new_query = urllib.parse.urlencode(query_dict)
-    modified_url = parsed_url._replace(query=new_query).geturl()
-    
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': {
-                "hosts": [modified_url],
-            },
+# Use Redis channel layer with newer API
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [ {"address": REDIS_URL, "ssl_cert_reqs": None} ],
         },
-    }
-else:
-    # Non-SSL Redis connection
-    CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': {
-                "hosts": [REDIS_URL],
-            },
-        },
-    }
+    },
+}
 
-# Fallback to InMemoryChannelLayer if Redis connection fails
+# Commented out InMemoryChannelLayer for reference
 # CHANNEL_LAYERS = {
 #     'default': {
 #         'BACKEND': 'channels.layers.InMemoryChannelLayer',
