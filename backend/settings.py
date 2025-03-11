@@ -198,17 +198,37 @@ ASGI_APPLICATION = 'backend.asgi.application'
 # Channel layers configuration
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
 
-# Use Redis channel layer with newer API
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [REDIS_URL],
-            "ssl": True,
-            "ssl_cert_reqs": None,
+# In aioredis 2.0+ and channels-redis 4.0+, SSL configuration is handled differently
+# The SSL verification can be disabled through Redis connection options
+if REDIS_URL.startswith('rediss://'):
+    # Import Redis from aioredis 2.0+
+    import redis.asyncio
+
+    # Configure Redis connection with SSL options for aioredis 2.0+
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [
+                    {
+                        "address": REDIS_URL,
+                        "ssl": True,
+                        "ssl_cert_reqs": None,  # This disables SSL certificate verification
+                    }
+                ],
+            },
         },
-    },
-}
+    }
+else:
+    # Non-SSL Redis connection
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [REDIS_URL],
+            },
+        },
+    }
 
 # Commented out InMemoryChannelLayer for reference
 # CHANNEL_LAYERS = {
