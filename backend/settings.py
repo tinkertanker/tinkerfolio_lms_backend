@@ -199,17 +199,35 @@ ASGI_APPLICATION = 'backend.asgi.application'
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
 
 # Use Redis channel layer for production
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [{
-                "address": REDIS_URL,
-                "ssl_cert_reqs": None
-            }],
+# For aioredis 1.3.1, which is what channels_redis 3.2.0 uses, 
+# we need to modify the URL directly instead of passing ssl_cert_reqs
+if REDIS_URL.startswith('rediss://'):
+    # For SSL Redis connections, modify the URL to disable SSL verification
+    import urllib.parse
+    parsed_url = urllib.parse.urlparse(REDIS_URL)
+    query_dict = dict(urllib.parse.parse_qsl(parsed_url.query))
+    query_dict['ssl_cert_reqs'] = 'none'
+    new_query = urllib.parse.urlencode(query_dict)
+    modified_url = parsed_url._replace(query=new_query).geturl()
+    
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [modified_url],
+            },
         },
-    },
-}
+    }
+else:
+    # For non-SSL Redis connections
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [REDIS_URL],
+            },
+        },
+    }
 
 # Commented out in-memory configuration for reference
 # CHANNEL_LAYERS = {
