@@ -198,25 +198,24 @@ ASGI_APPLICATION = 'backend.asgi.application'
 # Channel layers configuration
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
 
-# Use Redis channel layer for production
+# Use Redis channel layer with newer API
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [{
-                "address": REDIS_URL,
-                "ssl": True,
-                "ssl_cert_reqs": None,
-            }],
+            "hosts": [REDIS_URL],
         },
     },
 }
 
-# Commented out in-memory configuration for reference
+# Commented out InMemoryChannelLayer for reference
 # CHANNEL_LAYERS = {
 #     'default': {
 #         'BACKEND': 'channels.layers.InMemoryChannelLayer',
 #     },
 # }
 
-# "hosts": [('127.0.0.1', 6379)],
+# Commented out old Redis configuration for reference
+# Note: We tried different approaches to fix SSL certificate verification issues:
+# 1. Using ssl_cert_reqs=None in the hosts dictionary - caused "unexpected keyword argument" error
+# 2. Modifying the URL with ssl_cert_reqs=none parameter - still had SSL verification failures
